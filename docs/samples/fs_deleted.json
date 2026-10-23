@@ -1,0 +1,24 @@
+{
+  "event_id": "5326e5798a387cd221579e95fae0f3346dfbabd1223b241383ae223592052455",
+  "source": "fs",
+  "ts_utc": "2026-10-23T10:14:10.900Z",
+  "host": "WIN-FORENSIC-01",
+  "user": null,
+  "action": "FILE_DELETED",
+  "entity_type": "file",
+  "entity": "E:\\reports\\payload_backup.exe",
+  "details": {
+    "raw_record_id": "FILE_DELETED|E:\\reports\\payload_backup.exe",
+    "drive_letter": "E:",
+    "file_path": "E:\\reports\\payload_backup.exe",
+    "file_name": "payload_backup.exe",
+    "extension": ".exe",
+    "file_size_bytes": 0,
+    "is_directory": false
+  },
+  "raw": {
+    "event_type": "deleted",
+    "src_path": "E:\\reports\\payload_backup.exe",
+    "is_directory": false
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "event_id": "35d62aa22cd83cbed302ff75895324d2b416fd24b16f712c1b24224e91bdeb42",
+  "source": "usb",
+  "ts_utc": "2026-10-23T10:15:30.800Z",
+  "host": "WIN-FORENSIC-01",
+  "user": "SYSTEM",
+  "action": "DEVICE_REMOVED",
+  "entity_type": "device",
+  "entity": "E: (SanDisk Ultra 4C53000123456789)",
+  "details": {
+    "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK&PROD_ULTRA\\4C53000123456789",
+    "drive_letter": "E:",
+    "device_name": "SanDisk Ultra",
+    "serial_number": "4C53000123456789",
+    "vendor_id": "0781",
+    "product_id": "5581"
+  },
+  "raw": {
+    "DeviceInstanceId": "USBSTOR\\DISK&VEN_SANDISK&PROD_ULTRA\\4C53000123456789&0",
+    "Class": "DiskDrive",
+    "FriendlyName": "SanDisk Ultra USB Device",
+    "DriveLetter": "E:",
+    "EventType": "DBT_DEVICEREMOVECOMPLETE"
+  }
+}
