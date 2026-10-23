@@ -1,0 +1,195 @@
+[
+  {
+    "case_name": "missing_required_event_id",
+    "expected_error": "event_id",
+    "payload": {
+      "source": "usb",
+      "ts_utc": "2026-10-23T10:00:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "E: (Test SanDisk)",
+      "details": {
+        "drive_letter": "E:",
+        "serial_number": "TEST1234",
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+      },
+      "raw": {
+        "DriveLetter": "E:"
+      }
+    }
+  },
+  {
+    "case_name": "invalid_source_enum",
+    "expected_error": "source",
+    "payload": {
+      "event_id": "437b2a1da6d9686307f8794fa00005e57bb1a1f3b7ea311921ed666c141a2390",
+      "source": "network_packet",
+      "ts_utc": "2026-10-23T10:00:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "E: (Test SanDisk)",
+      "details": {
+        "drive_letter": "E:",
+        "serial_number": "TEST1234",
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+      },
+      "raw": {
+        "DriveLetter": "E:"
+      }
+    }
+  },
+  {
+    "case_name": "action_source_mismatch",
+    "expected_error": "action",
+    "payload": {
+      "event_id": "437b2a1da6d9686307f8794fa00005e57bb1a1f3b7ea311921ed666c141a2390",
+      "source": "usb",
+      "ts_utc": "2026-10-23T10:00:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "PROCESS_STARTED",
+      "entity_type": "device",
+      "entity": "E: (Test SanDisk)",
+      "details": {
+        "drive_letter": "E:",
+        "serial_number": "TEST1234",
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+      },
+      "raw": {
+        "DriveLetter": "E:"
+      }
+    }
+  },
+  {
+    "case_name": "malformed_timestamp_no_ms_no_z",
+    "expected_error": "ts_utc",
+    "payload": {
+      "event_id": "437b2a1da6d9686307f8794fa00005e57bb1a1f3b7ea311921ed666c141a2390",
+      "source": "usb",
+      "ts_utc": "2026-10-23 10:00:00",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "E: (Test SanDisk)",
+      "details": {
+        "drive_letter": "E:",
+        "serial_number": "TEST1234",
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+      },
+      "raw": {
+        "DriveLetter": "E:"
+      }
+    }
+  },
+  {
+    "case_name": "invalid_event_id_format",
+    "expected_error": "event_id",
+    "payload": {
+      "event_id": "not-a-valid-sha256-hex",
+      "source": "usb",
+      "ts_utc": "2026-10-23T10:00:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "E: (Test SanDisk)",
+      "details": {
+        "drive_letter": "E:",
+        "serial_number": "TEST1234",
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+      },
+      "raw": {
+        "DriveLetter": "E:"
+      }
+    }
+  },
+  {
+    "case_name": "lowercase_drive_letter",
+    "expected_error": "drive letter",
+    "payload": {
+      "event_id": "437b2a1da6d9686307f8794fa00005e57bb1a1f3b7ea311921ed666c141a2390",
+      "source": "usb",
+      "ts_utc": "2026-10-23T10:00:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "e:\\reports\\payload.exe",
+      "details": {
+        "drive_letter": "E:",
+        "serial_number": "TEST1234",
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+      },
+      "raw": {
+        "DriveLetter": "E:"
+      }
+    }
+  },
+  {
+    "case_name": "forward_slashes_in_path",
+    "expected_error": "backslashes",
+    "payload": {
+      "event_id": "437b2a1da6d9686307f8794fa00005e57bb1a1f3b7ea311921ed666c141a2390",
+      "source": "usb",
+      "ts_utc": "2026-10-23T10:00:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "E:/reports/payload.exe",
+      "details": {
+        "drive_letter": "E:",
+        "serial_number": "TEST1234",
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+      },
+      "raw": {
+        "DriveLetter": "E:"
+      }
+    }
+  },
+  {
+    "case_name": "missing_raw_record_id",
+    "expected_error": "raw_record_id",
+    "payload": {
+      "event_id": "437b2a1da6d9686307f8794fa00005e57bb1a1f3b7ea311921ed666c141a2390",
+      "source": "usb",
+      "ts_utc": "2026-10-23T10:00:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "E: (Test SanDisk)",
+      "details": {
+        "drive_letter": "E:"
+      },
+      "raw": {
+        "DriveLetter": "E:"
+      }
+    }
+  },
+  {
+    "case_name": "null_raw_telemetry",
+    "expected_error": "raw",
+    "payload": {
+      "event_id": "437b2a1da6d9686307f8794fa00005e57bb1a1f3b7ea311921ed666c141a2390",
+      "source": "usb",
+      "ts_utc": "2026-10-23T10:00:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "E: (Test SanDisk)",
+      "details": {
+        "drive_letter": "E:",
+        "serial_number": "TEST1234",
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+      },
+      "raw": null
+    }
+  }
+]
