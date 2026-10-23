@@ -1,0 +1,59 @@
+# ForensiTrace Correlation Rules Specification (v1)
+# Author: Akash (Correlation Engine & Rules Owner)
+# Technical Contract: docs/schema.md & Build & Execution Plan
+# Scope: Phase 2 Baseline (Rules R1, R2, R3)
+
+version: "1.0"
+updated_at: "2026-10-23T10:00:00Z"
+
+rules:
+  R1:
+    rule_id: "R1"
+    name: "Device arrival followed by file activity"
+    description: "A removable device arrives, then a file is created or modified on that same drive within 5 minutes."
+    enabled: true
+    window_seconds: 300  # 5 minutes
+    trigger:
+      source: "usb"
+      actions:
+        - "DEVICE_ARRIVED"
+    target:
+      source: "fs"
+      actions:
+        - "FILE_CREATED"
+        - "FILE_MODIFIED"
+
+  R2:
+    rule_id: "R2"
+    name: "File creation followed by process execution"
+    description: "A file is created, then a process starts from that same file path within 10 minutes."
+    enabled: true
+    window_seconds: 600  # 10 minutes
+    trigger:
+      source: "fs"
+      actions:
+        - "FILE_CREATED"
+    target:
+      source: "eventlog"
+      actions:
+        - "PROCESS_STARTED"
+
+  R3:
+    rule_id: "R3"
+    name: "Process starts from a removable drive without preceding write"
+    description: "A process starts from a confirmed removable drive, with no earlier corresponding write event observed within the preceding 10 minutes."
+    enabled: true
+    window_seconds: 600  # 10 minutes
+    trigger:
+      source: "eventlog"
+      actions:
+        - "PROCESS_STARTED"
+    context:
+      source: "usb"
+      actions:
+        - "DEVICE_ARRIVED"
+    target:
+      source: "fs"
+      actions:
+        - "FILE_CREATED"
+        - "FILE_MODIFIED"
