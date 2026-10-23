@@ -1,0 +1,24 @@
+{
+  "event_id": "87d3ca119cb9dd8b8eae4011737f06ce7453b7837c2579bf0545cb7eddeca0de",
+  "source": "fs",
+  "ts_utc": "2026-10-23T10:02:00.100Z",
+  "host": "WIN-FORENSIC-01",
+  "user": null,
+  "action": "FILE_MODIFIED",
+  "entity_type": "file",
+  "entity": "E:\\reports\\payload.exe",
+  "details": {
+    "raw_record_id": "FILE_MODIFIED|E:\\reports\\payload.exe",
+    "drive_letter": "E:",
+    "file_path": "E:\\reports\\payload.exe",
+    "file_name": "payload.exe",
+    "extension": ".exe",
+    "file_size_bytes": 70144,
+    "is_directory": false
+  },
+  "raw": {
+    "event_type": "modified",
+    "src_path": "E:\\reports\\payload.exe",
+    "is_directory": false
+  }
+}

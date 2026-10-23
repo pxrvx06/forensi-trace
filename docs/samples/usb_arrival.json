@@ -1,0 +1,25 @@
+{
+  "event_id": "8fdfc64e74cc0d33ca188bff14a86a57ec8ac88f9569ea731ad171d9c67213e6",
+  "source": "usb",
+  "ts_utc": "2026-10-23T10:00:00.120Z",
+  "host": "WIN-FORENSIC-01",
+  "user": "SYSTEM",
+  "action": "DEVICE_ARRIVED",
+  "entity_type": "device",
+  "entity": "E: (SanDisk Ultra 4C53000123456789)",
+  "details": {
+    "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK&PROD_ULTRA\\4C53000123456789",
+    "drive_letter": "E:",
+    "device_name": "SanDisk Ultra",
+    "serial_number": "4C53000123456789",
+    "vendor_id": "0781",
+    "product_id": "5581"
+  },
+  "raw": {
+    "DeviceInstanceId": "USBSTOR\\DISK&VEN_SANDISK&PROD_ULTRA\\4C53000123456789&0",
+    "Class": "DiskDrive",
+    "FriendlyName": "SanDisk Ultra USB Device",
+    "DriveLetter": "E:",
+    "EventType": "DBT_DEVICEARRIVAL"
+  }
+}

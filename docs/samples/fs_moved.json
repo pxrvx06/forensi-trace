@@ -1,0 +1,26 @@
+{
+  "event_id": "13463d55c0aba1d140689ea1eb86a418a4c2cec7c5c6bd2ae9aa588dc25aa479",
+  "source": "fs",
+  "ts_utc": "2026-10-23T10:05:22.350Z",
+  "host": "WIN-FORENSIC-01",
+  "user": null,
+  "action": "FILE_MOVED",
+  "entity_type": "file",
+  "entity": "E:\\reports\\payload.exe",
+  "details": {
+    "raw_record_id": "FILE_MOVED|E:\\reports\\payload.exe",
+    "drive_letter": "E:",
+    "file_path": "E:\\reports\\payload.exe",
+    "dest_path": "E:\\reports\\payload_backup.exe",
+    "file_name": "payload.exe",
+    "extension": ".exe",
+    "file_size_bytes": 70144,
+    "is_directory": false
+  },
+  "raw": {
+    "event_type": "moved",
+    "src_path": "E:\\reports\\payload.exe",
+    "dest_path": "E:\\reports\\payload_backup.exe",
+    "is_directory": false
+  }
+}

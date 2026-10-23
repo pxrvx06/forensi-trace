@@ -1,0 +1,103 @@
+{
+  "events": [
+    {
+      "event_id": "8376a88fcb952b02739e8f45c59bfba2c381de2b6140e44551b03832d5d149a7",
+      "source": "fs",
+      "ts_utc": "2026-10-23T10:01:15.450Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_CREATED",
+      "entity_type": "file",
+      "entity": "E:\\reports\\payload.exe",
+      "details": {
+        "raw_record_id": "FILE_CREATED|E:\\reports\\payload.exe",
+        "drive_letter": "E:",
+        "file_path": "E:\\reports\\payload.exe",
+        "file_name": "payload.exe",
+        "extension": ".exe",
+        "file_size_bytes": 65536,
+        "is_directory": false
+      },
+      "raw": {
+        "event_type": "created",
+        "src_path": "E:\\reports\\payload.exe",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "87d3ca119cb9dd8b8eae4011737f06ce7453b7837c2579bf0545cb7eddeca0de",
+      "source": "fs",
+      "ts_utc": "2026-10-23T10:02:00.100Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_MODIFIED",
+      "entity_type": "file",
+      "entity": "E:\\reports\\payload.exe",
+      "details": {
+        "raw_record_id": "FILE_MODIFIED|E:\\reports\\payload.exe",
+        "drive_letter": "E:",
+        "file_path": "E:\\reports\\payload.exe",
+        "file_name": "payload.exe",
+        "extension": ".exe",
+        "file_size_bytes": 70144,
+        "is_directory": false
+      },
+      "raw": {
+        "event_type": "modified",
+        "src_path": "E:\\reports\\payload.exe",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "13463d55c0aba1d140689ea1eb86a418a4c2cec7c5c6bd2ae9aa588dc25aa479",
+      "source": "fs",
+      "ts_utc": "2026-10-23T10:05:22.350Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_MOVED",
+      "entity_type": "file",
+      "entity": "E:\\reports\\payload.exe",
+      "details": {
+        "raw_record_id": "FILE_MOVED|E:\\reports\\payload.exe",
+        "drive_letter": "E:",
+        "file_path": "E:\\reports\\payload.exe",
+        "dest_path": "E:\\reports\\payload_backup.exe",
+        "file_name": "payload.exe",
+        "extension": ".exe",
+        "file_size_bytes": 70144,
+        "is_directory": false
+      },
+      "raw": {
+        "event_type": "moved",
+        "src_path": "E:\\reports\\payload.exe",
+        "dest_path": "E:\\reports\\payload_backup.exe",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "5326e5798a387cd221579e95fae0f3346dfbabd1223b241383ae223592052455",
+      "source": "fs",
+      "ts_utc": "2026-10-23T10:14:10.900Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_DELETED",
+      "entity_type": "file",
+      "entity": "E:\\reports\\payload_backup.exe",
+      "details": {
+        "raw_record_id": "FILE_DELETED|E:\\reports\\payload_backup.exe",
+        "drive_letter": "E:",
+        "file_path": "E:\\reports\\payload_backup.exe",
+        "file_name": "payload_backup.exe",
+        "extension": ".exe",
+        "file_size_bytes": 0,
+        "is_directory": false
+      },
+      "raw": {
+        "event_type": "deleted",
+        "src_path": "E:\\reports\\payload_backup.exe",
+        "is_directory": false
+      }
+    }
+  ],
+  "batch_size": 4
+}
