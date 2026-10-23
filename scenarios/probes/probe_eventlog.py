@@ -3,11 +3,11 @@
 probe_eventlog.py - Read-only Windows Event Log probe for ForensiTrace.
 
 Checks for the presence of target event records in Windows Event Log:
-  1. Security 4688: Process Created
-  2. Security 1102: Audit Log Cleared
-  3. System 104:    System Log Cleared
+  1. Security 4688: Process Created (PROCESS_STARTED)
+  2. Security 1102: Audit Log Cleared (LOG_CLEARED)
+  3. System 104:    System Log Cleared (LOG_CLEARED)
 
-Prints extracted fields and raw XML representation to verify event structure.
+Prints extracted fields, raw XML representation, and candidate mapping to docs/schema.md.
 Handles permission errors (non-elevated terminal) and disabled audit policies.
 """
 
@@ -187,6 +187,20 @@ def probe_target(win32evtlog, target: dict) -> None:
                 print("         Notice: 'CommandLine' is missing. To include command line arguments,")
                 print("         enable 'Include command line in process creation events' via Group Policy or Registry.")
                 print("         See Step 3 in scripts/setup_windows.md.")
+
+        print()
+        print("  Candidate Schema Mapping (docs/schema.md):")
+        channel_record = f"{channel}:{record_id}" if record_id else f"{channel}:unknown"
+        action_name = "PROCESS_STARTED" if event_id == 4688 else "LOG_CLEARED"
+        entity_name = event_data.get("NewProcessName", channel)
+        entity_type = "process" if event_id == 4688 else "file"
+        print(f"    source        : eventlog")
+        print(f"    raw_record_id : {channel_record}")
+        print(f"    ts_utc        : {ts}")
+        print(f"    action        : {action_name}")
+        print(f"    entity_type   : {entity_type}")
+        print(f"    entity        : {entity_name}")
+        print(f"    host          : {computer}")
 
         print()
         print("  Raw XML Snippet (first 400 chars):")
