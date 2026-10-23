@@ -1,0 +1,45 @@
+{
+  "event_id": "d8d4e6d93a6d82f72cf368ba8a0daa8f3ea55558116c3d67637c0736fa487dd7",
+  "source": "eventlog",
+  "ts_utc": "2026-10-23T10:02:30.800Z",
+  "host": "WIN-FORENSIC-01",
+  "user": "CONTOSO\\analyst",
+  "action": "PROCESS_STARTED",
+  "entity_type": "process",
+  "entity": "E:\\reports\\payload.exe",
+  "details": {
+    "raw_record_id": "Security:9482104",
+    "event_record_id": 9482104,
+    "channel": "Security",
+    "event_code": 4688,
+    "process_id": "0x1a4c",
+    "process_name": "E:\\reports\\payload.exe",
+    "parent_process_id": "0x0e20",
+    "parent_process_name": "C:\\Windows\\explorer.exe",
+    "command_line": "\"E:\\reports\\payload.exe\" --silent"
+  },
+  "raw": {
+    "Event": {
+      "System": {
+        "Provider": {
+          "Name": "Microsoft-Windows-Security-Auditing"
+        },
+        "EventID": 4688,
+        "EventRecordID": 9482104,
+        "Channel": "Security",
+        "Computer": "WIN-FORENSIC-01",
+        "TimeCreated": {
+          "SystemTime": "2026-10-23T10:02:30.800Z"
+        }
+      },
+      "EventData": {
+        "NewProcessName": "E:\\reports\\payload.exe",
+        "ProcessId": "0x1a4c",
+        "ParentProcessName": "C:\\Windows\\explorer.exe",
+        "CommandLine": "\"E:\\reports\\payload.exe\" --silent",
+        "SubjectUserName": "analyst",
+        "SubjectDomainName": "CONTOSO"
+      }
+    }
+  }
+}
