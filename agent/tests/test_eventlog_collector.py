@@ -18,16 +18,32 @@ Test coverage:
 
 from __future__ import annotations
 
+import os
+import json
 import queue
+import shutil
+import tempfile
 import unittest
+from unittest.mock import patch, MagicMock
 from typing import Any
 
+from agent.config import AgentConfig
+from agent.sender import EventSender
 from agent.collectors.eventlog_collector import (
     parse_eventlog_xml,
     normalize_eventlog_timestamp,
     EventLogCollector,
 )
-from backend.schema import Event, SourceEnum, ActionEnum, EntityTypeEnum, compute_event_id, TIMESTAMP_REGEX
+from backend.schema import (
+    Event,
+    EventBatch,
+    SourceEnum,
+    ActionEnum,
+    EntityTypeEnum,
+    compute_event_id,
+    TIMESTAMP_REGEX,
+)
+from backend.db import init_db, insert_events_batch, get_events
 
 # ---------------------------------------------------------------------------
 # Synthetic Windows Event Log XML Fixtures
@@ -271,6 +287,70 @@ class TestEventLogCollector(unittest.TestCase):
         item = q.get_nowait()
         self.assertEqual(item["event_id"], event_dict["event_id"])
         self.assertEqual(item["action"], "PROCESS_STARTED")
+
+    @patch("urllib.request.urlopen")
+    def test_full_pipeline_eventlog_to_sender_to_database(self, mock_urlopen):
+        """
+        Full end-to-end pipeline test for Daksh's Phase 2 slice:
+        1. Event Log XML (Security 4688) parsed into schema-compliant event.
+        2. Collector emits event to agent queue.
+        3. EventSender drains queue and posts EventBatch via HTTP.
+        4. Mock HTTP server verifies transmitted payload.
+        5. Database layer ingests EventBatch into SQLite.
+        """
+        # Step 1: Parse 4688 XML
+        event_dict = parse_eventlog_xml(XML_4688_VALID)
+        self.assertIsNotNone(event_dict)
+
+        # Step 2: Collector emits event
+        q = queue.Queue()
+        collector = EventLogCollector(event_queue=q)
+        collector.emit(event_dict)
+        self.assertEqual(q.qsize(), 1)
+
+        # Step 3: Setup sender and mock response
+        mock_resp = MagicMock()
+        mock_resp.getcode.return_value = 200
+        mock_resp.read.return_value = b'{"status": "ok", "ingested": 1}'
+        mock_resp.__enter__.return_value = mock_resp
+        mock_urlopen.return_value = mock_resp
+
+        cfg = AgentConfig(
+            backend_url="http://127.0.0.1:8000",
+            batch_size=1,
+            flush_interval_seconds=0.05,
+        )
+        sender = EventSender(event_queue=q, config=cfg)
+        sender.start()
+        import time
+        time.sleep(0.2)
+        sender.stop()
+
+        # Step 4: Verify payload delivered to HTTP endpoint
+        self.assertTrue(mock_urlopen.called)
+        call_req = mock_urlopen.call_args[0][0]
+        sent_body = json.loads(call_req.data.decode("utf-8"))
+        batch = EventBatch.model_validate(sent_body)
+        self.assertEqual(len(batch.events), 1)
+        self.assertEqual(batch.events[0].event_id, event_dict["event_id"])
+        self.assertEqual(batch.events[0].action, ActionEnum.PROCESS_STARTED)
+
+        # Step 5: Verify SQLite database layer stores the transmitted event
+        test_dir = tempfile.mkdtemp()
+        try:
+            db_path = os.path.join(test_dir, "pipeline_test.db")
+            init_db(db_path)
+            inserted, dups = insert_events_batch(batch.events, db_path=db_path)
+            self.assertEqual(inserted, 1)
+            self.assertEqual(dups, 0)
+
+            stored_events = get_events(db_path=db_path)
+            self.assertEqual(len(stored_events), 1)
+            self.assertEqual(stored_events[0]["event_id"], event_dict["event_id"])
+            self.assertEqual(stored_events[0]["action"], "PROCESS_STARTED")
+            self.assertEqual(stored_events[0]["entity"], r"E:\reports\payload.exe")
+        finally:
+            shutil.rmtree(test_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":
