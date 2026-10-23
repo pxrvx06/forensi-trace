@@ -1,0 +1,299 @@
+[
+  {
+    "event_id": "a6ec61a05ddfd101866eacceb72dec2ebaa8f20259677c46fec4f37873c299dd",
+    "source": "usb",
+    "ts_utc": "2026-10-23T11:00:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "G: (Corsair Voyager CORSAIR_NO_WRITE_001)",
+    "details": {
+      "drive_letter": "G:",
+      "device_name": "Corsair Voyager",
+      "serial_number": "CORSAIR_NO_WRITE_001",
+      "edge_case_note": "USB connection without subsequent file write",
+      "raw_record_id": "USBSTOR\\DISK&VEN_CORSAIR\\CORSAIR_NO_WRITE_001"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEARRIVAL",
+      "DriveLetter": "G:"
+    }
+  },
+  {
+    "event_id": "14ddd4d487a8ffdcec533a1984857d463569a9c0f8a3393927d15287dc18f22a",
+    "source": "usb",
+    "ts_utc": "2026-10-23T11:10:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "H: (SanDisk Cruzer SANDISK_EXISTING_BIN_002)",
+    "details": {
+      "drive_letter": "H:",
+      "device_name": "SanDisk Cruzer",
+      "serial_number": "SANDISK_EXISTING_BIN_002",
+      "edge_case_note": "USB arrival followed by process execution without file write event",
+      "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK\\SANDISK_EXISTING_BIN_002"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEARRIVAL",
+      "DriveLetter": "H:"
+    }
+  },
+  {
+    "event_id": "f3639fb689052cfe9da3c62a91a9bc0fbd04769228d5c757341ec98b5747fb41",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T11:11:30.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "H:\\tools\\dump_memory.exe",
+    "details": {
+      "event_record_id": 9482500,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_name": "H:\\tools\\dump_memory.exe",
+      "edge_case_note": "Execution from USB without preceding file write event in telemetry",
+      "raw_record_id": "Security:9482500"
+    },
+    "raw": {
+      "EventID": 4688,
+      "NewProcessName": "H:\\tools\\dump_memory.exe"
+    }
+  },
+  {
+    "event_id": "55fa6719660f773e243e8d033b63982f0bbac806f9f8b2005a4960a2655cec94",
+    "source": "fs",
+    "ts_utc": "2026-10-23T11:20:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "E:\\staging\\setup_script.bat",
+    "details": {
+      "drive_letter": "E:",
+      "file_path": "E:\\staging\\setup_script.bat",
+      "edge_case_note": "File created on E: drive but process started on F: drive",
+      "raw_record_id": "FILE_CREATED|E:\\staging\\setup_script.bat"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "E:\\staging\\setup_script.bat"
+    }
+  },
+  {
+    "event_id": "e3ca776643da1bf15dd54be32e514236cad26de2fa8ba27dd79e2053c3109e69",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T11:21:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "F:\\staging\\other_binary.exe",
+    "details": {
+      "event_record_id": 9482600,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_name": "F:\\staging\\other_binary.exe",
+      "edge_case_note": "Mismatched drive letter (F: vs E:) and file name",
+      "raw_record_id": "Security:9482600"
+    },
+    "raw": {
+      "EventID": 4688,
+      "NewProcessName": "F:\\staging\\other_binary.exe"
+    }
+  },
+  {
+    "event_id": "d67e6f9a9df53d629728e32b29e501b5d96e93b8e7a9b48b17be5d79da10be76",
+    "source": "fs",
+    "ts_utc": "2026-10-23T11:30:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "E:\\reports\\duplicate_test.txt",
+    "details": {
+      "drive_letter": "E:",
+      "file_path": "E:\\reports\\duplicate_test.txt",
+      "edge_case_note": "Duplicate event occurrence 1 of 2",
+      "raw_record_id": "FILE_CREATED|E:\\reports\\duplicate_test.txt"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "E:\\reports\\duplicate_test.txt"
+    }
+  },
+  {
+    "event_id": "d67e6f9a9df53d629728e32b29e501b5d96e93b8e7a9b48b17be5d79da10be76",
+    "source": "fs",
+    "ts_utc": "2026-10-23T11:30:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "E:\\reports\\duplicate_test.txt",
+    "details": {
+      "drive_letter": "E:",
+      "file_path": "E:\\reports\\duplicate_test.txt",
+      "edge_case_note": "Duplicate event occurrence 1 of 2",
+      "raw_record_id": "FILE_CREATED|E:\\reports\\duplicate_test.txt"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "E:\\reports\\duplicate_test.txt"
+    }
+  },
+  {
+    "event_id": "e7ddec45943ab84286ab0113f981a101c2e525db3b42309c889c8a14753645f5",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T11:42:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "E:\\tools\\reorder_test.exe",
+    "details": {
+      "event_record_id": 9482700,
+      "channel": "Security",
+      "process_name": "E:\\tools\\reorder_test.exe",
+      "raw_record_id": "Security:9482700"
+    },
+    "raw": {
+      "NewProcessName": "E:\\tools\\reorder_test.exe"
+    }
+  },
+  {
+    "event_id": "1c718a779476ccd4afae5dfedfd20b24f447984b8ad40573d1a05d9d471e13e3",
+    "source": "usb",
+    "ts_utc": "2026-10-23T11:40:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "E: (PNY Flash PNY_OUT_OF_ORDER_005)",
+    "details": {
+      "drive_letter": "E:",
+      "serial_number": "PNY_OUT_OF_ORDER_005",
+      "raw_record_id": "USBSTOR\\DISK&VEN_PNY\\PNY_OUT_OF_ORDER_005"
+    },
+    "raw": {
+      "DriveLetter": "E:"
+    }
+  },
+  {
+    "event_id": "486ae253280bb047d065f0a52a64cfb5d2d7108980aec9cae0c4d232f676911b",
+    "source": "fs",
+    "ts_utc": "2026-10-23T11:41:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "E:\\tools\\reorder_test.exe",
+    "details": {
+      "drive_letter": "E:",
+      "file_path": "E:\\tools\\reorder_test.exe",
+      "raw_record_id": "FILE_CREATED|E:\\tools\\reorder_test.exe"
+    },
+    "raw": {
+      "src_path": "E:\\tools\\reorder_test.exe"
+    }
+  },
+  {
+    "event_id": "619b8c5c5551043e991c53b9a1617b1558d4f7c13ba3b872b07dd0325a7ef4c9",
+    "source": "usb",
+    "ts_utc": "2026-10-23T12:00:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "E: (BoundaryDrive BOUNDARY_TEST_DRIVE_006)",
+    "details": {
+      "drive_letter": "E:",
+      "serial_number": "BOUNDARY_TEST_DRIVE_006",
+      "raw_record_id": "USBSTOR\\DISK&VEN_TEST\\BOUNDARY_TEST_DRIVE_006"
+    },
+    "raw": {
+      "DriveLetter": "E:"
+    }
+  },
+  {
+    "event_id": "c61401fa4f7cf5153ad4d995a422cd42bb1b013779abf3f1d59b15bef933e5ca",
+    "source": "fs",
+    "ts_utc": "2026-10-23T12:00:30.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "E:\\boundary\\target.exe",
+    "details": {
+      "drive_letter": "E:",
+      "file_path": "E:\\boundary\\target.exe",
+      "raw_record_id": "FILE_CREATED|E:\\boundary\\target.exe"
+    },
+    "raw": {
+      "src_path": "E:\\boundary\\target.exe"
+    }
+  },
+  {
+    "event_id": "da14e287e7f5a9de70a91de119b6297544652cfd130187a1c8e23273719e8a92",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T12:09:59.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "E:\\boundary\\target.exe",
+    "details": {
+      "event_record_id": 9482801,
+      "channel": "Security",
+      "process_name": "E:\\boundary\\target.exe",
+      "boundary_condition": "just_inside_window_599s",
+      "raw_record_id": "Security:9482801"
+    },
+    "raw": {
+      "NewProcessName": "E:\\boundary\\target.exe"
+    }
+  },
+  {
+    "event_id": "85f1915dc6b94e43d996f492ecbc8ccc164d06e142e1f3249a80cd736fa8ec18",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T12:10:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "E:\\boundary\\target.exe",
+    "details": {
+      "event_record_id": 9482802,
+      "channel": "Security",
+      "process_name": "E:\\boundary\\target.exe",
+      "boundary_condition": "exactly_on_window_boundary_600s",
+      "raw_record_id": "Security:9482802"
+    },
+    "raw": {
+      "NewProcessName": "E:\\boundary\\target.exe"
+    }
+  },
+  {
+    "event_id": "4af6b39fb461fd2571415cc47c340117fed33bf15fd921581b28002050dcc12f",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T12:10:01.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "E:\\boundary\\target.exe",
+    "details": {
+      "event_record_id": 9482803,
+      "channel": "Security",
+      "process_name": "E:\\boundary\\target.exe",
+      "boundary_condition": "just_outside_window_601s",
+      "raw_record_id": "Security:9482803"
+    },
+    "raw": {
+      "NewProcessName": "E:\\boundary\\target.exe"
+    }
+  }
+]
