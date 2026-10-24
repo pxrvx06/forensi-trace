@@ -1,0 +1,154 @@
+[
+  {
+    "event_id": "c8ba24608c1339ab429c5624a981785d98b392160d78a961a5658ddcba3296d3",
+    "source": "usb",
+    "ts_utc": "2026-10-23T14:00:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "F: (Corsair Flash Survivor)",
+    "details": {
+      "drive_letter": "F:",
+      "device_name": "Corsair Flash Survivor",
+      "serial_number": "CORSAIR_BULK_7701",
+      "raw_record_id": "USBSTOR\\DISK&VEN_CORSAIR\\CORSAIR_BULK_7701"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEARRIVAL",
+      "DriveLetter": "F:"
+    }
+  },
+  {
+    "event_id": "3fea26fce2309c0c05332fa02fda6c1932e6188209e731c77a32e7d4cd4f09c0",
+    "source": "fs",
+    "ts_utc": "2026-10-23T14:00:04.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "F:\\exfil\\data_1.csv",
+    "details": {
+      "drive_letter": "F:",
+      "file_path": "F:\\exfil\\data_1.csv",
+      "file_name": "data_1.csv",
+      "extension": ".csv",
+      "file_size_bytes": 2048,
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_1.csv"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "F:\\exfil\\data_1.csv"
+    }
+  },
+  {
+    "event_id": "fd39bc84d96439a8fa8c0cd8f04b1459aba1784e4fbb09a6bc3f45deacb21cd7",
+    "source": "fs",
+    "ts_utc": "2026-10-23T14:00:08.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "F:\\exfil\\data_2.csv",
+    "details": {
+      "drive_letter": "F:",
+      "file_path": "F:\\exfil\\data_2.csv",
+      "file_name": "data_2.csv",
+      "extension": ".csv",
+      "file_size_bytes": 4096,
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_2.csv"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "F:\\exfil\\data_2.csv"
+    }
+  },
+  {
+    "event_id": "18f8834267e7a324d6f42fd8d74f1ce52935e9ab57646774734fc1b26bcfba9a",
+    "source": "fs",
+    "ts_utc": "2026-10-23T14:00:12.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "F:\\exfil\\data_3.csv",
+    "details": {
+      "drive_letter": "F:",
+      "file_path": "F:\\exfil\\data_3.csv",
+      "file_name": "data_3.csv",
+      "extension": ".csv",
+      "file_size_bytes": 6144,
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_3.csv"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "F:\\exfil\\data_3.csv"
+    }
+  },
+  {
+    "event_id": "9660f0480e634b44220868cd8f4361facc3705ab2fb6665f175c4cc740e58900",
+    "source": "fs",
+    "ts_utc": "2026-10-23T14:00:16.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "F:\\exfil\\data_4.csv",
+    "details": {
+      "drive_letter": "F:",
+      "file_path": "F:\\exfil\\data_4.csv",
+      "file_name": "data_4.csv",
+      "extension": ".csv",
+      "file_size_bytes": 8192,
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_4.csv"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "F:\\exfil\\data_4.csv"
+    }
+  },
+  {
+    "event_id": "ec28a664af5363d44ae74e37830fa577cc98c001e0db62703ce8cdc24991f3ce",
+    "source": "fs",
+    "ts_utc": "2026-10-23T14:00:20.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "F:\\exfil\\data_5.csv",
+    "details": {
+      "drive_letter": "F:",
+      "file_path": "F:\\exfil\\data_5.csv",
+      "file_name": "data_5.csv",
+      "extension": ".csv",
+      "file_size_bytes": 10240,
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_5.csv"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "F:\\exfil\\data_5.csv"
+    }
+  },
+  {
+    "event_id": "92cd5f256c78e4d1097e10e1e674354f3c0fa7447651192a345a16d42949990f",
+    "source": "fs",
+    "ts_utc": "2026-10-23T14:00:24.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "F:\\exfil\\data_6.csv",
+    "details": {
+      "drive_letter": "F:",
+      "file_path": "F:\\exfil\\data_6.csv",
+      "file_name": "data_6.csv",
+      "extension": ".csv",
+      "file_size_bytes": 12288,
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_6.csv"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "F:\\exfil\\data_6.csv"
+    }
+  }
+]

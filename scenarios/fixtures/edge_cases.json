@@ -295,5 +295,377 @@
     "raw": {
       "NewProcessName": "E:\\boundary\\target.exe"
     }
+  },
+  {
+    "event_id": "04478e201799425603fbc6d932ef76df1853fc70dd7b7b1bbab01d2b0de88cc7",
+    "source": "usb",
+    "ts_utc": "2026-10-23T12:00:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "J: (Kingston DataTraveler)",
+    "details": {
+      "drive_letter": "J:",
+      "device_name": "Kingston DataTraveler",
+      "serial_number": "KINGSTON_BULK_001",
+      "edge_case_note": "USB arrival establishing removable drive J: for R4 testing",
+      "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON_BULK_001"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEARRIVAL",
+      "DriveLetter": "J:"
+    }
+  },
+  {
+    "event_id": "89480b82182f37dd247b87cf2448fd58535e1d58f789baeceafa006bcdcb2b16",
+    "source": "fs",
+    "ts_utc": "2026-10-23T12:00:04.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "J:\\burst\\doc_1.pdf",
+    "details": {
+      "drive_letter": "J:",
+      "file_path": "J:\\burst\\doc_1.pdf",
+      "file_name": "doc_1.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 1024,
+      "edge_case_note": "Valid R4 burst file",
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_1.pdf"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "J:\\burst\\doc_1.pdf"
+    }
+  },
+  {
+    "event_id": "23952cd3ccd969cc3daf1d01c031e1f1996cd69db91f6e9b7ac335a3393aae84",
+    "source": "fs",
+    "ts_utc": "2026-10-23T12:00:08.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "J:\\burst\\doc_2.pdf",
+    "details": {
+      "drive_letter": "J:",
+      "file_path": "J:\\burst\\doc_2.pdf",
+      "file_name": "doc_2.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 2048,
+      "edge_case_note": "Valid R4 burst file",
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_2.pdf"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "J:\\burst\\doc_2.pdf"
+    }
+  },
+  {
+    "event_id": "3d68faaae614c8c2defdc4cf03728b4a21d91bcb39674eb7cb32057f6331c419",
+    "source": "fs",
+    "ts_utc": "2026-10-23T12:00:12.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "J:\\burst\\doc_3.pdf",
+    "details": {
+      "drive_letter": "J:",
+      "file_path": "J:\\burst\\doc_3.pdf",
+      "file_name": "doc_3.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 3072,
+      "edge_case_note": "Valid R4 burst file",
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_3.pdf"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "J:\\burst\\doc_3.pdf"
+    }
+  },
+  {
+    "event_id": "eacc3b28631b026a469d16e59faf990e5a04a9b09d234a03adb7935241ad910a",
+    "source": "fs",
+    "ts_utc": "2026-10-23T12:00:16.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "J:\\burst\\doc_4.pdf",
+    "details": {
+      "drive_letter": "J:",
+      "file_path": "J:\\burst\\doc_4.pdf",
+      "file_name": "doc_4.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 4096,
+      "edge_case_note": "Valid R4 burst file",
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_4.pdf"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "J:\\burst\\doc_4.pdf"
+    }
+  },
+  {
+    "event_id": "ab10900895bb7d4ffd5d53615613ebe4c2408816dd7c20cc3cd3670692ab5be8",
+    "source": "fs",
+    "ts_utc": "2026-10-23T12:00:20.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "J:\\burst\\doc_5.pdf",
+    "details": {
+      "drive_letter": "J:",
+      "file_path": "J:\\burst\\doc_5.pdf",
+      "file_name": "doc_5.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 5120,
+      "edge_case_note": "Valid R4 burst file",
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_5.pdf"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "J:\\burst\\doc_5.pdf"
+    }
+  },
+  {
+    "event_id": "fab776e80e568dc2076662b3e57a939782af140b642e02f5c788680cc08e0f95",
+    "source": "usb",
+    "ts_utc": "2026-10-23T12:10:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "K: (Transcend JetFlash)",
+    "details": {
+      "drive_letter": "K:",
+      "device_name": "Transcend JetFlash",
+      "serial_number": "TRANSCEND_SUB_002",
+      "raw_record_id": "USBSTOR\\DISK&VEN_TRANSCEND\\TRANSCEND_SUB_002"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEARRIVAL",
+      "DriveLetter": "K:"
+    }
+  },
+  {
+    "event_id": "360e6b9e50c140c82e4931d5d141f7b6a42a3a49961a9817a3a93c05e5041e96",
+    "source": "fs",
+    "ts_utc": "2026-10-23T12:10:10.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "K:\\sub\\note_1.txt",
+    "details": {
+      "drive_letter": "K:",
+      "file_path": "K:\\sub\\note_1.txt",
+      "file_name": "note_1.txt",
+      "extension": ".txt",
+      "edge_case_note": "Sub-threshold count (2 files < 5 min_count)",
+      "raw_record_id": "FILE_CREATED|K:\\sub\\note_1.txt"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "K:\\sub\\note_1.txt"
+    }
+  },
+  {
+    "event_id": "79386522982fabaf9d4acb5091813e4444e29cb0fb82487b1d20f999ed22da79",
+    "source": "fs",
+    "ts_utc": "2026-10-23T12:10:20.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "K:\\sub\\note_2.txt",
+    "details": {
+      "drive_letter": "K:",
+      "file_path": "K:\\sub\\note_2.txt",
+      "file_name": "note_2.txt",
+      "extension": ".txt",
+      "edge_case_note": "Sub-threshold count (2 files < 5 min_count)",
+      "raw_record_id": "FILE_CREATED|K:\\sub\\note_2.txt"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "K:\\sub\\note_2.txt"
+    }
+  },
+  {
+    "event_id": "c79ebf9c9348ca79eacc9d0e62bff405e4a364c8506f1cab8d835380b1c55b8f",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T12:20:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\cmd.exe",
+    "details": {
+      "event_record_id": 9482901,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_name": "C:\\Windows\\System32\\cmd.exe",
+      "edge_case_note": "Target activity preceding log clearing",
+      "raw_record_id": "Security:9482901"
+    },
+    "raw": {
+      "EventID": 4688,
+      "NewProcessName": "C:\\Windows\\System32\\cmd.exe"
+    }
+  },
+  {
+    "event_id": "3bafb5fd1a21e3be62c398570ecaf9b2e4dcb3079d58c92948521d4a59d6596b",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T12:20:45.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "LOG_CLEARED",
+    "entity_type": "file",
+    "entity": "C:\\Windows\\System32\\winevt\\Logs\\Security.evtx",
+    "details": {
+      "event_record_id": 9482902,
+      "channel": "Security",
+      "event_code": 1102,
+      "edge_case_note": "Security audit log cleared 45s after cmd.exe execution",
+      "raw_record_id": "Security:9482902"
+    },
+    "raw": {
+      "EventID": 1102,
+      "Channel": "Security"
+    }
+  },
+  {
+    "event_id": "6f0520678060eb8e8c0d1e4ba01d575b9b78552a6fbc6843d6440c3242383b8c",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T12:50:00.000Z",
+    "host": "WIN-OTHER-HOST",
+    "user": "CONTOSO\\admin",
+    "action": "LOG_CLEARED",
+    "entity_type": "file",
+    "entity": "C:\\Windows\\System32\\winevt\\Logs\\System.evtx",
+    "details": {
+      "event_record_id": 10401,
+      "channel": "System",
+      "event_code": 104,
+      "edge_case_note": "Isolated log clear on separate host with no nearby activity",
+      "raw_record_id": "System:10401"
+    },
+    "raw": {
+      "EventID": 104,
+      "Channel": "System"
+    }
+  },
+  {
+    "event_id": "33f07c763ea62c9351d964d539f07494889861728f81370e3754fabd1bc7f456",
+    "source": "fs",
+    "ts_utc": "2026-10-23T13:00:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_MODIFIED",
+    "entity_type": "file",
+    "entity": "E:\\timestomp\\suspicious.dll",
+    "details": {
+      "drive_letter": "E:",
+      "file_path": "E:\\timestomp\\suspicious.dll",
+      "file_name": "suspicious.dll",
+      "ts_observed_utc": "2026-10-23T14:00:00.000Z",
+      "mtime_utc": "2026-10-23T13:00:00.000Z",
+      "edge_case_note": "Positive R6 timestamp discrepancy (3600s > 120s threshold)",
+      "raw_record_id": "FILE_MODIFIED|E:\\timestomp\\suspicious.dll"
+    },
+    "raw": {
+      "event_type": "modified",
+      "src_path": "E:\\timestomp\\suspicious.dll"
+    }
+  },
+  {
+    "event_id": "154f9e689437ab674fd9236cd4b2379b215c6e614953d2957ad228c37348c599",
+    "source": "fs",
+    "ts_utc": "2026-10-23T13:05:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "E:\\timestomp\\normal.txt",
+    "details": {
+      "drive_letter": "E:",
+      "file_path": "E:\\timestomp\\normal.txt",
+      "file_name": "normal.txt",
+      "ts_observed_utc": "2026-10-23T13:05:02.000Z",
+      "mtime_utc": "2026-10-23T13:05:00.000Z",
+      "edge_case_note": "Normal timestamp alignment (2s <= 120s threshold)",
+      "raw_record_id": "FILE_CREATED|E:\\timestomp\\normal.txt"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "E:\\timestomp\\normal.txt"
+    }
+  },
+  {
+    "event_id": "84930cbf4b3952e286aac3d109900096580d1d17dc598fd4026e7e6b8c6bbdc0",
+    "source": "usb",
+    "ts_utc": "2026-10-23T13:10:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "L: (SanDisk Boundary Drive)",
+    "details": {
+      "drive_letter": "L:",
+      "device_name": "SanDisk Boundary Drive",
+      "serial_number": "SANDISK_R7_BOUNDARY_900S",
+      "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK\\SANDISK_R7_BOUNDARY_900S"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEARRIVAL",
+      "DriveLetter": "L:"
+    }
+  },
+  {
+    "event_id": "e6cccb3bae6c162f626acfe25c2b0e9b9508fdb12628727ea0c0e938ff12467f",
+    "source": "fs",
+    "ts_utc": "2026-10-23T13:15:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "L:\\payloads\\chain_test.exe",
+    "details": {
+      "drive_letter": "L:",
+      "file_path": "L:\\payloads\\chain_test.exe",
+      "file_name": "chain_test.exe",
+      "raw_record_id": "FILE_CREATED|L:\\payloads\\chain_test.exe"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "L:\\payloads\\chain_test.exe"
+    }
+  },
+  {
+    "event_id": "355dae7728478152334fff2d8597ca6051b642021aa2294266ff5aa4e407831b",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T13:25:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "L:\\payloads\\chain_test.exe",
+    "details": {
+      "event_record_id": 9482950,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_name": "L:\\payloads\\chain_test.exe",
+      "edge_case_note": "R7 chain exactly at 900s boundary",
+      "raw_record_id": "Security:9482950"
+    },
+    "raw": {
+      "EventID": 4688,
+      "NewProcessName": "L:\\payloads\\chain_test.exe"
+    }
   }
 ]

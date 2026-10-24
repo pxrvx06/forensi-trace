@@ -1,10 +1,10 @@
 # ForensiTrace Correlation Rules Specification (v1)
 # Author: Akash (Correlation Engine & Rules Owner)
 # Technical Contract: docs/schema.md & Build & Execution Plan
-# Scope: Phase 2 Baseline (Rules R1, R2, R3)
+# Scope: Phase 2 Baseline (R1-R3) & Task 3 (R4-R7, Confidence Scoring, Evidence Provenance)
 
-version: "1.0"
-updated_at: "2026-10-23T10:00:00Z"
+version: "1.1"
+updated_at: "2026-10-24T16:45:00Z"
 
 rules:
   R1:
@@ -57,3 +57,72 @@ rules:
       actions:
         - "FILE_CREATED"
         - "FILE_MODIFIED"
+
+  R4:
+    rule_id: "R4"
+    name: "Bulk file creation on removable drive"
+    description: "A burst of file creations occurs on a confirmed removable drive within a 60-second window. Default threshold: 5 files."
+    enabled: true
+    window_seconds: 60   # 60-second burst window
+    min_count: 5         # Configurable threshold: minimum 5 distinct file creation events
+    trigger:
+      source: "fs"
+      actions:
+        - "FILE_CREATED"
+    context:
+      source: "usb"
+      actions:
+        - "DEVICE_ARRIVED"
+
+  R5:
+    rule_id: "R5"
+    name: "Log clearing near other activity"
+    description: "A security or system event log is cleared within 10 minutes (600s) of observed relevant activity on the same host."
+    enabled: true
+    window_seconds: 600  # 10 minutes (600 seconds)
+    trigger:
+      source: "eventlog"
+      actions:
+        - "LOG_CLEARED"
+    target:
+      source:
+        - "fs"
+        - "eventlog"
+        - "usb"
+      actions:
+        - "FILE_CREATED"
+        - "FILE_MODIFIED"
+        - "PROCESS_STARTED"
+        - "DEVICE_ARRIVED"
+
+  R6:
+    rule_id: "R6"
+    name: "Timestamp disagreement"
+    description: "A file's reported filesystem modification time differs from the collector observation time (details.ts_observed_utc) by more than 120 seconds."
+    enabled: true
+    window_seconds: 120  # 120 seconds threshold (strictly greater than 120s triggers)
+    threshold_seconds: 120
+    trigger:
+      source: "fs"
+      actions:
+        - "FILE_CREATED"
+        - "FILE_MODIFIED"
+
+  R7:
+    rule_id: "R7"
+    name: "Composite USB copy and execution chain"
+    description: "A composite attack chain reconstructing: USB arrival -> file created/copied on USB drive -> process executed from that file path within 15 minutes (900s)."
+    enabled: true
+    window_seconds: 900  # 15 minutes (900 seconds)
+    stages:
+      stage_1:
+        source: "usb"
+        action: "DEVICE_ARRIVED"
+      stage_2:
+        source: "fs"
+        actions:
+          - "FILE_CREATED"
+          - "FILE_MODIFIED"
+      stage_3:
+        source: "eventlog"
+        action: "PROCESS_STARTED"

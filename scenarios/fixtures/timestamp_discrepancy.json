@@ -1,0 +1,24 @@
+[
+  {
+    "event_id": "67b49c9355d5802870ee89a00f9ce01f8a6f129d4a45c598bb0dfd4bfba6715e",
+    "source": "fs",
+    "ts_utc": "2025-01-15T08:00:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "E:\\tools\\forged_driver.sys",
+    "details": {
+      "drive_letter": "E:",
+      "file_path": "E:\\tools\\forged_driver.sys",
+      "file_name": "forged_driver.sys",
+      "mtime_utc": "2025-01-15T08:00:00.000Z",
+      "ts_observed_utc": "2026-10-23T16:00:00.000Z",
+      "raw_record_id": "FILE_CREATED|E:\\tools\\forged_driver.sys"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "E:\\tools\\forged_driver.sys"
+    }
+  }
+]

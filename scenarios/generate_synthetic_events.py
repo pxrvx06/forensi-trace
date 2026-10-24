@@ -808,7 +808,276 @@ def generate_edge_cases(
         )
     )
 
+    # --------------------------------------------------------------------------
+    # Case 7: Rule R4 Bulk File Creation Scenarios (Burst, Sub-threshold, Boundary)
+    # --------------------------------------------------------------------------
+    # 7a: USB Arrival for Removable Drive J:
+    c7_usb_ts = "2026-10-23T12:00:00.000Z"
+    events.append(
+        make_event(
+            source="usb",
+            ts_utc=c7_usb_ts,
+            host=host,
+            user="SYSTEM",
+            action="DEVICE_ARRIVED",
+            entity_type="device",
+            entity="J: (Kingston DataTraveler)",
+            details={
+                "drive_letter": "J:",
+                "device_name": "Kingston DataTraveler",
+                "serial_number": "KINGSTON_BULK_001",
+                "edge_case_note": "USB arrival establishing removable drive J: for R4 testing",
+            },
+            raw={"EventType": "DBT_DEVICEARRIVAL", "DriveLetter": "J:"},
+            raw_record_id="USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON_BULK_001",
+        )
+    )
+    # 7b: Valid burst of 5 files within 20s (0s to 20s)
+    for idx in range(1, 6):
+        ts = f"2026-10-23T12:00:{idx * 4:02d}.000Z"
+        events.append(
+            make_event(
+                source="fs",
+                ts_utc=ts,
+                host=host,
+                user=None,
+                action="FILE_CREATED",
+                entity_type="file",
+                entity=f"J:\\burst\\doc_{idx}.pdf",
+                details={
+                    "drive_letter": "J:",
+                    "file_path": f"J:\\burst\\doc_{idx}.pdf",
+                    "file_name": f"doc_{idx}.pdf",
+                    "extension": ".pdf",
+                    "file_size_bytes": 1024 * idx,
+                    "edge_case_note": "Valid R4 burst file",
+                },
+                raw={"event_type": "created", "src_path": f"J:\\burst\\doc_{idx}.pdf"},
+                raw_record_id=f"FILE_CREATED|J:\\burst\\doc_{idx}.pdf",
+            )
+        )
+
+    # 7c: Sub-threshold creation (only 2 files created on drive K: - should NOT fire R4)
+    c7c_usb_ts = "2026-10-23T12:10:00.000Z"
+    events.append(
+        make_event(
+            source="usb",
+            ts_utc=c7c_usb_ts,
+            host=host,
+            user="SYSTEM",
+            action="DEVICE_ARRIVED",
+            entity_type="device",
+            entity="K: (Transcend JetFlash)",
+            details={
+                "drive_letter": "K:",
+                "device_name": "Transcend JetFlash",
+                "serial_number": "TRANSCEND_SUB_002",
+            },
+            raw={"EventType": "DBT_DEVICEARRIVAL", "DriveLetter": "K:"},
+            raw_record_id="USBSTOR\\DISK&VEN_TRANSCEND\\TRANSCEND_SUB_002",
+        )
+    )
+    for idx in range(1, 3):
+        events.append(
+            make_event(
+                source="fs",
+                ts_utc=f"2026-10-23T12:10:{idx * 10:02d}.000Z",
+                host=host,
+                user=None,
+                action="FILE_CREATED",
+                entity_type="file",
+                entity=f"K:\\sub\\note_{idx}.txt",
+                details={
+                    "drive_letter": "K:",
+                    "file_path": f"K:\\sub\\note_{idx}.txt",
+                    "file_name": f"note_{idx}.txt",
+                    "extension": ".txt",
+                    "edge_case_note": "Sub-threshold count (2 files < 5 min_count)",
+                },
+                raw={"event_type": "created", "src_path": f"K:\\sub\\note_{idx}.txt"},
+                raw_record_id=f"FILE_CREATED|K:\\sub\\note_{idx}.txt",
+            )
+        )
+
+    # --------------------------------------------------------------------------
+    # Case 8: Rule R5 Log Clearing Near Other Activity (Positive & Negative)
+    # --------------------------------------------------------------------------
+    # 8a: Positive R5 - Execution followed by Security log cleared within 45 seconds
+    c8_proc_ts = "2026-10-23T12:20:00.000Z"
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc=c8_proc_ts,
+            host=host,
+            user=user,
+            action="PROCESS_STARTED",
+            entity_type="process",
+            entity="C:\\Windows\\System32\\cmd.exe",
+            details={
+                "event_record_id": 9482901,
+                "channel": "Security",
+                "event_code": 4688,
+                "process_name": "C:\\Windows\\System32\\cmd.exe",
+                "edge_case_note": "Target activity preceding log clearing",
+            },
+            raw={"EventID": 4688, "NewProcessName": "C:\\Windows\\System32\\cmd.exe"},
+            raw_record_id="Security:9482901",
+        )
+    )
+    c8_clear_ts = "2026-10-23T12:20:45.000Z"
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc=c8_clear_ts,
+            host=host,
+            user=user,
+            action="LOG_CLEARED",
+            entity_type="file",
+            entity="C:\\Windows\\System32\\winevt\\Logs\\Security.evtx",
+            details={
+                "event_record_id": 9482902,
+                "channel": "Security",
+                "event_code": 1102,
+                "edge_case_note": "Security audit log cleared 45s after cmd.exe execution",
+            },
+            raw={"EventID": 1102, "Channel": "Security"},
+            raw_record_id="Security:9482902",
+        )
+    )
+
+    # 8b: Negative R5 - Log cleared 20 minutes (> 600s) after unrelated activity on different host
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-23T12:50:00.000Z",
+            host="WIN-OTHER-HOST",
+            user="CONTOSO\\admin",
+            action="LOG_CLEARED",
+            entity_type="file",
+            entity="C:\\Windows\\System32\\winevt\\Logs\\System.evtx",
+            details={
+                "event_record_id": 10401,
+                "channel": "System",
+                "event_code": 104,
+                "edge_case_note": "Isolated log clear on separate host with no nearby activity",
+            },
+            raw={"EventID": 104, "Channel": "System"},
+            raw_record_id="System:10401",
+        )
+    )
+
+    # --------------------------------------------------------------------------
+    # Case 9: Rule R6 Timestamp Disagreement (Positive discrepancy > 120s, Normal <= 120s)
+    # --------------------------------------------------------------------------
+    # 9a: Positive R6 - Reported mtime is 1 hour before observation time (3600s > 120s)
+    events.append(
+        make_event(
+            source="fs",
+            ts_utc="2026-10-23T13:00:00.000Z",  # Reported filesystem modified time
+            host=host,
+            user=None,
+            action="FILE_MODIFIED",
+            entity_type="file",
+            entity="E:\\timestomp\\suspicious.dll",
+            details={
+                "drive_letter": "E:",
+                "file_path": "E:\\timestomp\\suspicious.dll",
+                "file_name": "suspicious.dll",
+                "ts_observed_utc": "2026-10-23T14:00:00.000Z",  # Collector observed +3600s later
+                "mtime_utc": "2026-10-23T13:00:00.000Z",
+                "edge_case_note": "Positive R6 timestamp discrepancy (3600s > 120s threshold)",
+            },
+            raw={"event_type": "modified", "src_path": "E:\\timestomp\\suspicious.dll"},
+            raw_record_id="FILE_MODIFIED|E:\\timestomp\\suspicious.dll",
+        )
+    )
+    # 9b: Normal timestamp (discrepancy of 2 seconds <= 120s threshold - should NOT fire R6)
+    events.append(
+        make_event(
+            source="fs",
+            ts_utc="2026-10-23T13:05:00.000Z",
+            host=host,
+            user=None,
+            action="FILE_CREATED",
+            entity_type="file",
+            entity="E:\\timestomp\\normal.txt",
+            details={
+                "drive_letter": "E:",
+                "file_path": "E:\\timestomp\\normal.txt",
+                "file_name": "normal.txt",
+                "ts_observed_utc": "2026-10-23T13:05:02.000Z",  # Observed 2s later
+                "mtime_utc": "2026-10-23T13:05:00.000Z",
+                "edge_case_note": "Normal timestamp alignment (2s <= 120s threshold)",
+            },
+            raw={"event_type": "created", "src_path": "E:\\timestomp\\normal.txt"},
+            raw_record_id="FILE_CREATED|E:\\timestomp\\normal.txt",
+        )
+    )
+
+    # --------------------------------------------------------------------------
+    # Case 10: Rule R7 Composite USB Copy & Run Chain Boundary Testing
+    # --------------------------------------------------------------------------
+    # 10a: Positive R7 at exact 900s boundary (USB: 13:10:00, Write: 13:15:00, Run: 13:25:00)
+    c10_usb_ts = "2026-10-23T13:10:00.000Z"
+    events.append(
+        make_event(
+            source="usb",
+            ts_utc=c10_usb_ts,
+            host=host,
+            user="SYSTEM",
+            action="DEVICE_ARRIVED",
+            entity_type="device",
+            entity="L: (SanDisk Boundary Drive)",
+            details={
+                "drive_letter": "L:",
+                "device_name": "SanDisk Boundary Drive",
+                "serial_number": "SANDISK_R7_BOUNDARY_900S",
+            },
+            raw={"EventType": "DBT_DEVICEARRIVAL", "DriveLetter": "L:"},
+            raw_record_id="USBSTOR\\DISK&VEN_SANDISK\\SANDISK_R7_BOUNDARY_900S",
+        )
+    )
+    events.append(
+        make_event(
+            source="fs",
+            ts_utc="2026-10-23T13:15:00.000Z",  # +300s
+            host=host,
+            user=None,
+            action="FILE_CREATED",
+            entity_type="file",
+            entity="L:\\payloads\\chain_test.exe",
+            details={
+                "drive_letter": "L:",
+                "file_path": "L:\\payloads\\chain_test.exe",
+                "file_name": "chain_test.exe",
+            },
+            raw={"event_type": "created", "src_path": "L:\\payloads\\chain_test.exe"},
+            raw_record_id="FILE_CREATED|L:\\payloads\\chain_test.exe",
+        )
+    )
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-23T13:25:00.000Z",  # +900s exact boundary
+            host=host,
+            user=user,
+            action="PROCESS_STARTED",
+            entity_type="process",
+            entity="L:\\payloads\\chain_test.exe",
+            details={
+                "event_record_id": 9482950,
+                "channel": "Security",
+                "event_code": 4688,
+                "process_name": "L:\\payloads\\chain_test.exe",
+                "edge_case_note": "R7 chain exactly at 900s boundary",
+            },
+            raw={"EventID": 4688, "NewProcessName": "L:\\payloads\\chain_test.exe"},
+            raw_record_id="Security:9482950",
+        )
+    )
+
     return events
+
 
 
 # ==============================================================================
@@ -928,6 +1197,159 @@ def write_fixture_json(output_path: Path, data: Any) -> None:
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
         f.write("\n")
+def generate_bulk_file_creation(host: str = "WIN-FORENSIC-01") -> list[dict[str, Any]]:
+    """
+    Scenario D: Rule R4 Bulk File Creation on Removable Drive.
+    Generates a burst of 6 files created on removable volume F: within 24 seconds.
+    """
+    events = []
+    usb_ts = "2026-10-23T14:00:00.000Z"
+    events.append(
+        make_event(
+            source="usb",
+            ts_utc=usb_ts,
+            host=host,
+            user="SYSTEM",
+            action="DEVICE_ARRIVED",
+            entity_type="device",
+            entity="F: (Corsair Flash Survivor)",
+            details={
+                "drive_letter": "F:",
+                "device_name": "Corsair Flash Survivor",
+                "serial_number": "CORSAIR_BULK_7701",
+            },
+            raw={"EventType": "DBT_DEVICEARRIVAL", "DriveLetter": "F:"},
+            raw_record_id="USBSTOR\\DISK&VEN_CORSAIR\\CORSAIR_BULK_7701",
+        )
+    )
+    for i in range(1, 7):
+        ts = f"2026-10-23T14:00:{i * 4:02d}.000Z"
+        events.append(
+            make_event(
+                source="fs",
+                ts_utc=ts,
+                host=host,
+                user=None,
+                action="FILE_CREATED",
+                entity_type="file",
+                entity=f"F:\\exfil\\data_{i}.csv",
+                details={
+                    "drive_letter": "F:",
+                    "file_path": f"F:\\exfil\\data_{i}.csv",
+                    "file_name": f"data_{i}.csv",
+                    "extension": ".csv",
+                    "file_size_bytes": 2048 * i,
+                },
+                raw={"event_type": "created", "src_path": f"F:\\exfil\\data_{i}.csv"},
+                raw_record_id=f"FILE_CREATED|F:\\exfil\\data_{i}.csv",
+            )
+        )
+    return events
+
+
+def generate_log_cleared(host: str = "WIN-FORENSIC-01", user: str = "CONTOSO\\analyst") -> list[dict[str, Any]]:
+    """
+    Scenario E: Rule R5 Log Clearing Near Suspicious Activity.
+    Generates file copy + execution followed by Security Log 1102 cleared after 40 seconds.
+    """
+    events = []
+    # 1. File created
+    events.append(
+        make_event(
+            source="fs",
+            ts_utc="2026-10-23T15:00:00.000Z",
+            host=host,
+            user=None,
+            action="FILE_CREATED",
+            entity_type="file",
+            entity="C:\\temp\\staging_script.ps1",
+            details={
+                "drive_letter": "C:",
+                "file_path": "C:\\temp\\staging_script.ps1",
+                "file_name": "staging_script.ps1",
+            },
+            raw={"event_type": "created", "src_path": "C:\\temp\\staging_script.ps1"},
+            raw_record_id="FILE_CREATED|C:\\temp\\staging_script.ps1",
+        )
+    )
+    # 2. Process started
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-23T15:00:20.000Z",
+            host=host,
+            user=user,
+            action="PROCESS_STARTED",
+            entity_type="process",
+            entity="C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            details={
+                "event_record_id": 9483010,
+                "channel": "Security",
+                "event_code": 4688,
+                "process_name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                "command_line": "powershell.exe -ExecutionPolicy Bypass -File C:\\temp\\staging_script.ps1",
+            },
+            raw={"EventID": 4688, "NewProcessName": "powershell.exe"},
+            raw_record_id="Security:9483010",
+        )
+    )
+    # 3. Security Log cleared (+40s)
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-23T15:01:00.000Z",
+            host=host,
+            user=user,
+            action="LOG_CLEARED",
+            entity_type="file",
+            entity="C:\\Windows\\System32\\winevt\\Logs\\Security.evtx",
+            details={
+                "event_record_id": 9483011,
+                "channel": "Security",
+                "event_code": 1102,
+            },
+            raw={"EventID": 1102, "Channel": "Security"},
+            raw_record_id="Security:9483011",
+        )
+    )
+    return events
+
+
+def generate_timestamp_discrepancy(host: str = "WIN-FORENSIC-01") -> list[dict[str, Any]]:
+    """
+    Scenario F: Rule R6 Timestamp Disagreement (Timestomping).
+    Generates a file creation where reported modified time is backdated by ~1 year.
+    """
+    events = []
+    events.append(
+        make_event(
+            source="fs",
+            ts_utc="2025-01-15T08:00:00.000Z",  # Backdated modified time
+            host=host,
+            user=None,
+            action="FILE_CREATED",
+            entity_type="file",
+            entity="E:\\tools\\forged_driver.sys",
+            details={
+                "drive_letter": "E:",
+                "file_path": "E:\\tools\\forged_driver.sys",
+                "file_name": "forged_driver.sys",
+                "mtime_utc": "2025-01-15T08:00:00.000Z",
+                "ts_observed_utc": "2026-10-23T16:00:00.000Z",  # Actual collector observation
+            },
+            raw={"event_type": "created", "src_path": "E:\\tools\\forged_driver.sys"},
+            raw_record_id="FILE_CREATED|E:\\tools\\forged_driver.sys",
+        )
+    )
+    return events
+
+
+def write_fixture_json(output_path: Path, data: Any) -> None:
+    """Serializes data into formatted JSON deterministically."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
     logger.info("[PRODUCED] Fixture written: %s (%d bytes)", output_path, output_path.stat().st_size)
 
 
@@ -954,13 +1376,32 @@ def generate_all_fixtures(output_dir: Path) -> dict[str, Path]:
     write_fixture_json(edge_path, edge_events)
     results["edge_cases"] = edge_path
 
-    # 4. invalid_events.json (isolated negative test cases)
+    # 4. bulk_file_creation.json (Rule R4 fixture)
+    bulk_path = output_dir / "bulk_file_creation.json"
+    bulk_events = generate_bulk_file_creation()
+    write_fixture_json(bulk_path, bulk_events)
+    results["bulk_file_creation"] = bulk_path
+
+    # 5. log_cleared.json (Rule R5 fixture)
+    log_path = output_dir / "log_cleared.json"
+    log_events = generate_log_cleared()
+    write_fixture_json(log_path, log_events)
+    results["log_cleared"] = log_path
+
+    # 6. timestamp_discrepancy.json (Rule R6 fixture)
+    ts_disc_path = output_dir / "timestamp_discrepancy.json"
+    ts_disc_events = generate_timestamp_discrepancy()
+    write_fixture_json(ts_disc_path, ts_disc_events)
+    results["timestamp_discrepancy"] = ts_disc_path
+
+    # 7. invalid_events.json (isolated negative test cases)
     invalid_path = output_dir / "invalid_events.json"
     invalid_cases = generate_invalid_events()
     write_fixture_json(invalid_path, invalid_cases)
     results["invalid_events"] = invalid_path
 
     return results
+
 
 
 def validate_event_dict(data: dict[str, Any]) -> tuple[bool, list[str]]:
@@ -1023,7 +1464,14 @@ def validate_fixtures(fixtures_dir: Path) -> bool:
     """
     logger.info("[RECEIVED] Running schema validation on fixtures in: %s", fixtures_dir)
 
-    valid_files = ["usb_copy_run.json", "normal_noise.json", "edge_cases.json"]
+    valid_files = [
+        "usb_copy_run.json",
+        "normal_noise.json",
+        "edge_cases.json",
+        "bulk_file_creation.json",
+        "log_cleared.json",
+        "timestamp_discrepancy.json",
+    ]
     all_valid = True
 
     for filename in valid_files:
@@ -1077,7 +1525,16 @@ def main() -> None:
     )
     parser.add_argument(
         "--scenario",
-        choices=["all", "usb_copy_run", "normal_noise", "edge_cases", "invalid_events"],
+        choices=[
+            "all",
+            "usb_copy_run",
+            "normal_noise",
+            "edge_cases",
+            "bulk_file_creation",
+            "log_cleared",
+            "timestamp_discrepancy",
+            "invalid_events",
+        ],
         default="all",
         help="Specify which scenario fixture to generate (default: all)",
     )
@@ -1098,8 +1555,15 @@ def main() -> None:
         write_fixture_json(output_dir / "normal_noise.json", generate_normal_noise())
     elif args.scenario == "edge_cases":
         write_fixture_json(output_dir / "edge_cases.json", generate_edge_cases())
+    elif args.scenario == "bulk_file_creation":
+        write_fixture_json(output_dir / "bulk_file_creation.json", generate_bulk_file_creation())
+    elif args.scenario == "log_cleared":
+        write_fixture_json(output_dir / "log_cleared.json", generate_log_cleared())
+    elif args.scenario == "timestamp_discrepancy":
+        write_fixture_json(output_dir / "timestamp_discrepancy.json", generate_timestamp_discrepancy())
     elif args.scenario == "invalid_events":
         write_fixture_json(output_dir / "invalid_events.json", generate_invalid_events())
+
 
     if args.validate or args.scenario == "all":
         is_ok = validate_fixtures(output_dir)

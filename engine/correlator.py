@@ -3,7 +3,7 @@ engine/correlator.py - Core Correlation Engine for ForensiTrace.
 
 Author: Akash (Correlation Engine & Rules Owner)
 Technical Contracts: docs/schema.md, docs/rules.yaml, backend/schema.py, backend/db.py
-Scope: Task 2 - Rules R1, R2, R3
+Scope: Complete Task 3 Implementation (Rules R1-R7, Confidence Scoring, Evidence Provenance)
 """
 
 from __future__ import annotations
@@ -15,10 +15,12 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 from backend.schema import Activity, ActivityEventLink, Event
-from engine.config import RulesConfig, load_rules_config
+from engine.config import RuleDefinition, RulesConfig, load_rules_config
+from engine.narratives import generate_narrative
+from engine.scoring import compute_confidence
 
 logger = logging.getLogger("forensitrace.engine.correlator")
 if not logger.handlers:
@@ -30,9 +32,17 @@ if not logger.handlers:
 
 
 def parse_iso_utc(ts_str: str) -> datetime:
-    """Parses UTC ISO-8601 timestamp string (e.g. '2026-10-23T10:00:00.120Z') to datetime."""
-    cleaned = ts_str.replace("Z", "+00:00")
-    return datetime.fromisoformat(cleaned)
+    """
+    Parses UTC ISO-8601 timestamp string (e.g. '2026-10-23T10:00:00.120Z') to datetime.
+    Safely normalizes trailing 'Z' to '+00:00'.
+    """
+    if not ts_str or not isinstance(ts_str, str):
+        raise ValueError(f"Invalid timestamp value: {ts_str}")
+    cleaned = ts_str.strip().replace("Z", "+00:00")
+    dt = datetime.fromisoformat(cleaned)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 def normalize_windows_path(path: str) -> str:
@@ -74,7 +84,7 @@ def generate_activity_id(rule_id: str, host: str, supporting_event_ids: list[str
     activity_id = act_{rule_id.lower()}_{hash[:12]}
     """
     sorted_ids = sorted(supporting_event_ids)
-    seed = f"{rule_id}|{host}|{'|'.join(sorted_ids)}"
+    seed = f"{rule_id.upper()}|{host}|{'|'.join(sorted_ids)}"
     h = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:12]
     return f"act_{rule_id.lower()}_{h}"
 
@@ -89,7 +99,8 @@ class CorrelatedResult:
 class CorrelationEngine:
     """
     ForensiTrace Correlation Engine (Akash).
-    Evaluates rules R1, R2, and R3 across normalized telemetry events within configured time windows.
+    Evaluates rules R1 through R7 across normalized telemetry events within configured time windows.
+    Generates deterministic confidence scores and evidence provenance links.
     """
 
     def __init__(self, rules_config: Optional[RulesConfig] = None, rules_path: Optional[Path | str] = None):
@@ -111,30 +122,50 @@ class CorrelationEngine:
     ) -> list[CorrelatedResult]:
         """
         In-memory correlation entrypoint.
-        Evaluates R1, R2, and R3 on the provided events and returns reconstructed activities.
+        Evaluates rules R1-R7 on the provided events and returns reconstructed activities.
         Handles out-of-order input by sorting events chronologically before evaluation.
         """
         logger.info("[correlate_events] [RECEIVED] Received %d events for correlation", len(events))
         if not events:
             return []
 
-        # Convert to dicts and sort chronologically by ts_utc
-        raw_list = [self._event_dict(e) for e in events]
+        # Convert to dicts and filter out any items with unparseable timestamps
+        raw_list = []
+        for e in events:
+            d = self._event_dict(e)
+            try:
+                parse_iso_utc(d.get("ts_utc", ""))
+                raw_list.append(d)
+            except Exception as exc:
+                logger.warning("[correlate_events] Skipping event with unparseable timestamp: %s", exc)
+
         sorted_events = sorted(raw_list, key=lambda x: parse_iso_utc(x["ts_utc"]))
 
         results: list[CorrelatedResult] = []
 
-        # Evaluate rules R1, R2, R3
-        if self.config.get_rule("R1") and self.config.get_rule("R1").enabled:
+        # Evaluate rules R1 through R7
+        if self._is_rule_enabled("R1"):
             results.extend(self._evaluate_r1(sorted_events))
 
-        if self.config.get_rule("R2") and self.config.get_rule("R2").enabled:
+        if self._is_rule_enabled("R2"):
             results.extend(self._evaluate_r2(sorted_events))
 
-        if self.config.get_rule("R3") and self.config.get_rule("R3").enabled:
+        if self._is_rule_enabled("R3"):
             results.extend(self._evaluate_r3(sorted_events))
 
-        # Deduplicate results by activity_id
+        if self._is_rule_enabled("R4"):
+            results.extend(self._evaluate_r4(sorted_events))
+
+        if self._is_rule_enabled("R5"):
+            results.extend(self._evaluate_r5(sorted_events))
+
+        if self._is_rule_enabled("R6"):
+            results.extend(self._evaluate_r6(sorted_events))
+
+        if self._is_rule_enabled("R7"):
+            results.extend(self._evaluate_r7(sorted_events))
+
+        # Deduplicate results by activity_id to prevent any duplicate records
         unique_results: dict[str, CorrelatedResult] = {}
         for r in results:
             if r.activity.activity_id not in unique_results:
@@ -147,6 +178,36 @@ class CorrelationEngine:
             len(events),
         )
         return deduped
+
+    def _is_rule_enabled(self, rule_id: str) -> bool:
+        r = self.config.get_rule(rule_id)
+        return bool(r and r.enabled)
+
+    # --------------------------------------------------------------------------
+    # Helper: Discover confirmed removable drives per host from telemetry
+    # --------------------------------------------------------------------------
+    def _discover_removable_drives(self, events: list[dict[str, Any]]) -> dict[str, dict[str, dict[str, Any]]]:
+        """
+        Discovers confirmed removable drives per host based strictly on observed telemetry:
+        - Must have an actual DEVICE_ARRIVED event on that drive letter, or
+        - Event details explicitly flag is_removable = True.
+        """
+        removables: dict[str, dict[str, dict[str, Any]]] = {}
+        for ev in events:
+            host = ev.get("host", "")
+            if not host:
+                continue
+
+            if ev.get("source") == "usb" and ev.get("action") == "DEVICE_ARRIVED":
+                drive = extract_drive_letter(ev.get("entity", ""), ev.get("details"))
+                if drive:
+                    removables.setdefault(host, {})[drive] = ev
+            elif ev.get("details", {}).get("is_removable"):
+                drive = extract_drive_letter(ev.get("entity", ""), ev.get("details"))
+                if drive:
+                    removables.setdefault(host, {})[drive] = ev
+
+        return removables
 
     # --------------------------------------------------------------------------
     # Rule R1: Device arrival followed by file activity (Window: 5 min / 300s)
@@ -163,13 +224,10 @@ class CorrelationEngine:
         window_sec = rule.window_seconds
         results: list[CorrelatedResult] = []
 
-        # Find candidate USB arrival triggers
         usb_arrivals = [
             e for e in events
             if e.get("source") == "usb" and e.get("action") == "DEVICE_ARRIVED"
         ]
-
-        # Find file creation / modification targets
         fs_events = [
             e for e in events
             if e.get("source") == "fs" and e.get("action") in ("FILE_CREATED", "FILE_MODIFIED")
@@ -184,7 +242,6 @@ class CorrelationEngine:
             host = usb.get("host", "")
 
             for fs in fs_events:
-                # Must match host
                 if fs.get("host", "") != host:
                     continue
 
@@ -195,17 +252,17 @@ class CorrelationEngine:
                 fs_ts = parse_iso_utc(fs["ts_utc"])
                 delta = (fs_ts - usb_ts).total_seconds()
 
-                # Boundary rule: 0 <= delta <= window_sec (inclusive)
                 if 0.0 <= delta <= float(window_sec):
                     event_ids = [usb["event_id"], fs["event_id"]]
                     act_id = generate_activity_id("R1", host, event_ids)
-                    action_name = fs.get("action", "").lower().replace("_", " ")
 
-                    narrative = (
-                        f"Removable device arrived on {usb_drive} ({usb.get('details', {}).get('device_name', 'USB Device')}) "
-                        f"at {usb['ts_utc']}, followed by file {action_name} for '{fs.get('entity')}' "
-                        f"after {int(delta)}s (within {window_sec}s threshold)."
-                    )
+                    ctx = {
+                        "drive_letter": usb_drive,
+                        "delta_seconds": delta,
+                        "window_seconds": window_sec,
+                    }
+                    confidence, _ = compute_confidence("R1", [usb, fs], ctx)
+                    narrative = generate_narrative("R1", [usb, fs], ctx)
 
                     activity = Activity(
                         activity_id=act_id,
@@ -213,7 +270,7 @@ class CorrelationEngine:
                         rule_name=rule.name,
                         ts_start_utc=usb["ts_utc"],
                         ts_end_utc=fs["ts_utc"],
-                        confidence=1.0,
+                        confidence=confidence,
                         narrative=narrative,
                     )
 
@@ -250,13 +307,10 @@ class CorrelationEngine:
         window_sec = rule.window_seconds
         results: list[CorrelatedResult] = []
 
-        # Find candidate file creation triggers
         fs_creations = [
             e for e in events
             if e.get("source") == "fs" and e.get("action") == "FILE_CREATED"
         ]
-
-        # Find candidate process execution targets
         proc_starts = [
             e for e in events
             if e.get("source") == "eventlog" and e.get("action") == "PROCESS_STARTED"
@@ -281,15 +335,16 @@ class CorrelationEngine:
                 proc_ts = parse_iso_utc(proc["ts_utc"])
                 delta = (proc_ts - fs_ts).total_seconds()
 
-                # Boundary rule: 0 <= delta <= window_sec (inclusive)
                 if 0.0 <= delta <= float(window_sec):
                     event_ids = [fs["event_id"], proc["event_id"]]
                     act_id = generate_activity_id("R2", host, event_ids)
 
-                    narrative = (
-                        f"File '{fs.get('entity')}' was created at {fs['ts_utc']}, then executed as process "
-                        f"at {proc['ts_utc']} after {int(delta)}s (within {window_sec}s threshold)."
-                    )
+                    ctx = {
+                        "delta_seconds": delta,
+                        "window_seconds": window_sec,
+                    }
+                    confidence, _ = compute_confidence("R2", [fs, proc], ctx)
+                    narrative = generate_narrative("R2", [fs, proc], ctx)
 
                     activity = Activity(
                         activity_id=act_id,
@@ -297,7 +352,7 @@ class CorrelationEngine:
                         rule_name=rule.name,
                         ts_start_utc=fs["ts_utc"],
                         ts_end_utc=proc["ts_utc"],
-                        confidence=1.0,
+                        confidence=confidence,
                         narrative=narrative,
                     )
 
@@ -327,13 +382,6 @@ class CorrelationEngine:
         """
         R3: A process starts from a confirmed removable drive, with no earlier write
         event observed within the preceding 10-minute window (default: 600 seconds).
-
-        Removability determination:
-        - A drive is established as removable only if telemetry contains a confirmed
-          DEVICE_ARRIVED event for that drive letter, or details explicitly flag is_removable.
-        - Arbitrary drive letters (like C: or unobserved letters) are NOT assumed removable.
-        - The result represents an *absence of observed telemetry write evidence*,
-          not definitive proof that a write never occurred.
         """
         rule = self.config.get_rule("R3")
         if not rule:
@@ -342,24 +390,12 @@ class CorrelationEngine:
         window_sec = rule.window_seconds
         results: list[CorrelatedResult] = []
 
-        # Step 1: Discover confirmed removable drives per host from telemetry
-        removable_drives_by_host: dict[str, dict[str, dict[str, Any]]] = {}
-        for ev in events:
-            if ev.get("source") == "usb" and ev.get("action") == "DEVICE_ARRIVED":
-                host = ev.get("host", "")
-                drive = extract_drive_letter(ev.get("entity", ""), ev.get("details"))
-                if drive:
-                    if host not in removable_drives_by_host:
-                        removable_drives_by_host[host] = {}
-                    removable_drives_by_host[host][drive] = ev
+        removable_drives_by_host = self._discover_removable_drives(events)
 
-        # Step 2: Identify candidate process start events
         proc_starts = [
             e for e in events
             if e.get("source") == "eventlog" and e.get("action") == "PROCESS_STARTED"
         ]
-
-        # Step 3: Identify all file write events (creation / modification)
         write_events = [
             e for e in events
             if e.get("source") == "fs" and e.get("action") in ("FILE_CREATED", "FILE_MODIFIED")
@@ -373,24 +409,17 @@ class CorrelationEngine:
             if not proc_drive:
                 continue
 
-            # Check if drive is confirmed removable
             host_removables = removable_drives_by_host.get(host, {})
             is_confirmed_removable = (proc_drive in host_removables) or bool(
                 proc.get("details", {}).get("is_removable", False)
             )
 
-            # If removability cannot be established from evidence, skip (do not guess)
             if not is_confirmed_removable:
-                logger.debug(
-                    "[R3] Drive %s for process '%s' is not confirmed removable. Skipping.",
-                    proc_drive, proc_path
-                )
                 continue
 
             proc_ts = parse_iso_utc(proc["ts_utc"])
             proc_path_norm = normalize_windows_path(proc_path)
 
-            # Search preceding window [proc_ts - window_sec, proc_ts] for matching write
             write_observed = False
             for w in write_events:
                 if w.get("host", "") != host:
@@ -401,14 +430,11 @@ class CorrelationEngine:
                     continue
 
                 w_ts = parse_iso_utc(w["ts_utc"])
-                # Elapsed time between write and process
                 delta = (proc_ts - w_ts).total_seconds()
-                # If write occurred within the preceding window: 0 <= delta <= window_sec
                 if 0.0 <= delta <= float(window_sec):
                     write_observed = True
                     break
 
-            # If NO write was observed in the preceding window: R3 fires!
             if not write_observed:
                 usb_context_ev = host_removables.get(proc_drive)
                 supporting_ids = [proc["event_id"]]
@@ -418,11 +444,13 @@ class CorrelationEngine:
                 act_id = generate_activity_id("R3", host, supporting_ids)
                 start_ts = usb_context_ev["ts_utc"] if usb_context_ev else proc["ts_utc"]
 
-                narrative = (
-                    f"Process '{proc_path}' started from removable drive {proc_drive} at {proc['ts_utc']} "
-                    f"with no preceding file write event observed within the preceding {window_sec}s window. "
-                    f"(Indicates pre-existing binary or unmonitored write activity)."
-                )
+                ctx = {
+                    "drive_letter": proc_drive,
+                    "window_seconds": window_sec,
+                }
+                ev_list = [proc] + ([usb_context_ev] if usb_context_ev else [])
+                confidence, _ = compute_confidence("R3", ev_list, ctx)
+                narrative = generate_narrative("R3", ev_list, ctx)
 
                 activity = Activity(
                     activity_id=act_id,
@@ -430,7 +458,7 @@ class CorrelationEngine:
                     rule_name=rule.name,
                     ts_start_utc=start_ts,
                     ts_end_utc=proc["ts_utc"],
-                    confidence=0.85,
+                    confidence=confidence,
                     narrative=narrative,
                 )
 
@@ -453,6 +481,468 @@ class CorrelationEngine:
                     )
 
                 results.append(CorrelatedResult(activity=activity, links=links))
+
+        return results
+
+    # --------------------------------------------------------------------------
+    # Rule R4: Bulk file creation on removable drive (Window: 60s, min_count: 5)
+    # --------------------------------------------------------------------------
+    def _evaluate_r4(self, events: list[dict[str, Any]]) -> list[CorrelatedResult]:
+        """
+        R4: Detects a rapid burst of file creation events on a confirmed removable drive
+        within a sliding 60-second window (default threshold: min_count = 5 distinct files).
+        """
+        rule = self.config.get_rule("R4")
+        if not rule:
+            return []
+
+        window_sec = rule.window_seconds
+        min_count = rule.get_min_count(default=5)
+        results: list[CorrelatedResult] = []
+
+        removables = self._discover_removable_drives(events)
+
+        # Filter candidate FS file creation events
+        fs_creations = [
+            e for e in events
+            if e.get("source") == "fs" and e.get("action") == "FILE_CREATED"
+        ]
+
+        # Group by (host, drive)
+        grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+        for ev in fs_creations:
+            host = ev.get("host", "")
+            drive = extract_drive_letter(ev.get("entity", ""), ev.get("details"))
+            if not host or not drive:
+                continue
+
+            # Check if drive is confirmed removable on this host
+            host_removables = removables.get(host, {})
+            if (drive not in host_removables) and not ev.get("details", {}).get("is_removable"):
+                continue
+
+            grouped.setdefault((host, drive), []).append(ev)
+
+        # Evaluate burst window for each (host, drive) group
+        for (host, drive), ev_list in grouped.items():
+            # Deduplicate events by event_id and normalized entity path
+            seen_entities: set[str] = set()
+            unique_evs: list[dict[str, Any]] = []
+            for e in ev_list:
+                key = (e.get("event_id"), normalize_windows_path(e.get("entity", "")))
+                if key not in seen_entities:
+                    seen_entities.add(key)
+                    unique_evs.append(e)
+
+            # Chronological sort
+            unique_evs.sort(key=lambda x: parse_iso_utc(x["ts_utc"]))
+
+            if len(unique_evs) < min_count:
+                continue
+
+            # Sliding window algorithm to identify maximal bursts
+            n = len(unique_evs)
+            i = 0
+            while i < n:
+                start_ev = unique_evs[i]
+                start_ts = parse_iso_utc(start_ev["ts_utc"])
+
+                # Expand window while delta <= window_sec
+                j = i
+                burst_group: list[dict[str, Any]] = []
+                while j < n:
+                    curr_ev = unique_evs[j]
+                    curr_ts = parse_iso_utc(curr_ev["ts_utc"])
+                    delta = (curr_ts - start_ts).total_seconds()
+                    if 0.0 <= delta <= float(window_sec):
+                        burst_group.append(curr_ev)
+                        j += 1
+                    else:
+                        break
+
+                if len(burst_group) >= min_count:
+                    # Fire R4 for this burst!
+                    first_ev = burst_group[0]
+                    last_ev = burst_group[-1]
+                    span_sec = (parse_iso_utc(last_ev["ts_utc"]) - parse_iso_utc(first_ev["ts_utc"])).total_seconds()
+
+                    event_ids = [e["event_id"] for e in burst_group]
+                    act_id = generate_activity_id("R4", host, event_ids)
+
+                    ctx = {
+                        "drive_letter": drive,
+                        "host": host,
+                        "file_count": len(burst_group),
+                        "window_seconds": window_sec,
+                        "span_seconds": span_sec,
+                    }
+                    confidence, _ = compute_confidence("R4", burst_group, ctx)
+                    narrative = generate_narrative("R4", burst_group, ctx)
+
+                    activity = Activity(
+                        activity_id=act_id,
+                        rule_id="R4",
+                        rule_name=rule.name,
+                        ts_start_utc=first_ev["ts_utc"],
+                        ts_end_utc=last_ev["ts_utc"],
+                        confidence=confidence,
+                        narrative=narrative,
+                    )
+
+                    links = [
+                        ActivityEventLink(
+                            activity_id=act_id,
+                            event_id=e["event_id"],
+                            rule_id="R4",
+                            reason=f"File created on removable drive {drive} during burst sequence",
+                        )
+                        for e in burst_group
+                    ]
+
+                    # Add USB arrival context link if present
+                    usb_ev = removables.get(host, {}).get(drive)
+                    if usb_ev:
+                        links.append(
+                            ActivityEventLink(
+                                activity_id=act_id,
+                                event_id=usb_ev["event_id"],
+                                rule_id="R4",
+                                reason=f"USB arrival evidence confirming {drive} is removable",
+                            )
+                        )
+
+                    results.append(CorrelatedResult(activity=activity, links=links))
+                    # Advance to next non-overlapping position
+                    i = j
+                else:
+                    i += 1
+
+        return results
+
+    # --------------------------------------------------------------------------
+    # Rule R5: Log clearing near other activity (Window: 10 min / 600s)
+    # --------------------------------------------------------------------------
+    def _evaluate_r5(self, events: list[dict[str, Any]]) -> list[CorrelatedResult]:
+        """
+        R5: Detects a LOG_CLEARED event occurring within 10 minutes (600s) of relevant
+        telemetry activity (creation, execution, or insertion) on the same host.
+        """
+        rule = self.config.get_rule("R5")
+        if not rule:
+            return []
+
+        window_sec = rule.window_seconds
+        results: list[CorrelatedResult] = []
+
+        log_cleared_events = [
+            e for e in events
+            if e.get("action") == "LOG_CLEARED"
+        ]
+
+        relevant_activity_events = [
+            e for e in events
+            if e.get("action") in (
+                "PROCESS_STARTED", "FILE_CREATED", "FILE_MODIFIED",
+                "FILE_DELETED", "FILE_MOVED", "DEVICE_ARRIVED"
+            )
+        ]
+
+        for log_ev in log_cleared_events:
+            host = log_ev.get("host", "")
+            if not host:
+                continue
+
+            log_ts = parse_iso_utc(log_ev["ts_utc"])
+
+            # Find matching relevant activity on the same host within window_sec
+            for act_ev in relevant_activity_events:
+                if act_ev.get("host", "") != host:
+                    continue
+
+                act_ts = parse_iso_utc(act_ev["ts_utc"])
+                delta = (log_ts - act_ts).total_seconds()
+
+                # Within 10 minutes either before or after: abs(delta) <= window_sec
+                if abs(delta) <= float(window_sec):
+                    start_ts = min(log_ts, act_ts).isoformat().replace("+00:00", "Z")
+                    # Format to 3 ms digits if needed
+                    ts_start_str = log_ev["ts_utc"] if log_ts <= act_ts else act_ev["ts_utc"]
+                    ts_end_str = act_ev["ts_utc"] if log_ts <= act_ts else log_ev["ts_utc"]
+
+                    event_ids = [log_ev["event_id"], act_ev["event_id"]]
+                    act_id = generate_activity_id("R5", host, event_ids)
+
+                    ctx = {
+                        "delta_seconds": delta,
+                        "window_seconds": window_sec,
+                    }
+                    confidence, _ = compute_confidence("R5", [log_ev, act_ev], ctx)
+                    narrative = generate_narrative("R5", [log_ev, act_ev], ctx)
+
+                    activity = Activity(
+                        activity_id=act_id,
+                        rule_id="R5",
+                        rule_name=rule.name,
+                        ts_start_utc=ts_start_str,
+                        ts_end_utc=ts_end_str,
+                        confidence=confidence,
+                        narrative=narrative,
+                    )
+
+                    links = [
+                        ActivityEventLink(
+                            activity_id=act_id,
+                            event_id=log_ev["event_id"],
+                            rule_id="R5",
+                            reason=f"Event log cleared ({log_ev.get('details', {}).get('channel', 'Log')})",
+                        ),
+                        ActivityEventLink(
+                            activity_id=act_id,
+                            event_id=act_ev["event_id"],
+                            rule_id="R5",
+                            reason=f"Observed telemetry activity ({act_ev.get('action')}) within {window_sec}s of log clearing",
+                        ),
+                    ]
+                    results.append(CorrelatedResult(activity=activity, links=links))
+
+        return results
+
+    # --------------------------------------------------------------------------
+    # Rule R6: Timestamp disagreement (Threshold: > 120s)
+    # --------------------------------------------------------------------------
+    def _evaluate_r6(self, events: list[dict[str, Any]]) -> list[CorrelatedResult]:
+        """
+        R6: Detects a significant discrepancy between a file's reported filesystem
+        modified time and the collector observation time (details.ts_observed_utc).
+        Strictly schema-preserving per docs/decisions.md D-001.
+        Boundary convention: A discrepancy strictly greater than threshold_seconds (120s)
+        triggers the rule (i.e. abs(delta) > 120.0).
+        """
+        rule = self.config.get_rule("R6")
+        if not rule:
+            return []
+
+        threshold_sec = rule.get_threshold_seconds(default=120)
+        results: list[CorrelatedResult] = []
+
+        # Target file system events
+        fs_events = [
+            e for e in events
+            if e.get("source") == "fs" and e.get("action") in ("FILE_CREATED", "FILE_MODIFIED")
+        ]
+
+        for ev in fs_events:
+            host = ev.get("host", "")
+            details = ev.get("details", {})
+
+            # 1. Look for observation time in details (team consensus: details.ts_observed_utc)
+            observed_str = details.get("ts_observed_utc") or details.get("ts_collected_utc")
+            if not observed_str:
+                # If observation timestamp was not collected, safely skip
+                continue
+
+            # 2. Look for reported file modified time (details.mtime_utc or event.ts_utc)
+            mtime_str = details.get("mtime_utc") or details.get("file_modified_utc") or ev.get("ts_utc")
+            if not mtime_str:
+                continue
+
+            try:
+                t_obs = parse_iso_utc(observed_str)
+                t_mtime = parse_iso_utc(mtime_str)
+            except Exception as exc:
+                # Malformed or unparseable timestamps handled safely without crashing
+                logger.debug("[R6] Could not parse timestamps for event %s: %s", ev.get("event_id"), exc)
+                continue
+
+            delta = (t_mtime - t_obs).total_seconds()
+            discrepancy = abs(delta)
+
+            # Boundary rule: strictly greater than threshold (120s)
+            if discrepancy > float(threshold_sec):
+                event_ids = [ev["event_id"]]
+                act_id = generate_activity_id("R6", host, event_ids)
+
+                ctx = {
+                    "discrepancy_seconds": discrepancy,
+                    "threshold_seconds": threshold_sec,
+                    "mtime_utc": mtime_str,
+                    "ts_observed_utc": observed_str,
+                }
+                confidence, _ = compute_confidence("R6", [ev], ctx)
+                narrative = generate_narrative("R6", [ev], ctx)
+
+                start_ts = min(t_obs, t_mtime).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+                end_ts = max(t_obs, t_mtime).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+
+                activity = Activity(
+                    activity_id=act_id,
+                    rule_id="R6",
+                    rule_name=rule.name,
+                    ts_start_utc=start_ts,
+                    ts_end_utc=end_ts,
+                    confidence=confidence,
+                    narrative=narrative,
+                )
+
+                links = [
+                    ActivityEventLink(
+                        activity_id=act_id,
+                        event_id=ev["event_id"],
+                        rule_id="R6",
+                        reason=(
+                            f"File modified time ({mtime_str}) differs from collector observation time "
+                            f"({observed_str}) by {int(discrepancy)}s (exceeds {threshold_sec}s threshold)"
+                        ),
+                    )
+                ]
+                results.append(CorrelatedResult(activity=activity, links=links))
+
+        return results
+
+    # --------------------------------------------------------------------------
+    # Rule R7: Composite USB copy-and-execution correlation (Window: 15 min / 900s)
+    # --------------------------------------------------------------------------
+    def _evaluate_r7(self, events: list[dict[str, Any]]) -> list[CorrelatedResult]:
+        """
+        R7: Reconstructs a single composite activity representing the complete attack chain:
+        USB arrival -> file copied or created on the USB drive -> process executed from that file.
+
+        Requirements:
+        - Correlates events on the same host (usb.host == fs.host == proc.host).
+        - Verifies that the device is removable using actual device-arrival evidence.
+        - Matches copied executable path to executed process path with Windows normalization.
+        - Enforces 15-minute maximum chain window (900 seconds) from USB arrival to execution.
+        - Rejects incomplete chains, path mismatches, wrong-host events, and expired chains.
+        - Preserves event IDs and evidence links for all 3 stages.
+        - Produces one composite activity per chain without duplicate or confusing representations.
+        """
+        rule = self.config.get_rule("R7")
+        if not rule:
+            return []
+
+        window_sec = rule.window_seconds  # 900 seconds
+        results: list[CorrelatedResult] = []
+
+        removable_drives_by_host = self._discover_removable_drives(events)
+
+        usb_arrivals = [
+            e for e in events
+            if e.get("source") == "usb" and e.get("action") == "DEVICE_ARRIVED"
+        ]
+        fs_writes = [
+            e for e in events
+            if e.get("source") == "fs" and e.get("action") in ("FILE_CREATED", "FILE_MODIFIED")
+        ]
+        proc_starts = [
+            e for e in events
+            if e.get("source") == "eventlog" and e.get("action") == "PROCESS_STARTED"
+        ]
+
+        # Evaluate complete chains
+        for usb in usb_arrivals:
+            host = usb.get("host", "")
+            if not host:
+                continue
+
+            usb_drive = extract_drive_letter(usb.get("entity", ""), usb.get("details"))
+            if not usb_drive:
+                continue
+
+            # Removable verification: must match host's confirmed removable drives
+            host_removables = removable_drives_by_host.get(host, {})
+            if usb_drive not in host_removables:
+                continue
+
+            usb_ts = parse_iso_utc(usb["ts_utc"])
+
+            for fs in fs_writes:
+                # Must be same host
+                if fs.get("host", "") != host:
+                    continue
+
+                # Must be on the exact same removable drive
+                fs_drive = extract_drive_letter(fs.get("entity", ""), fs.get("details"))
+                if not fs_drive or fs_drive != usb_drive:
+                    continue
+
+                fs_ts = parse_iso_utc(fs["ts_utc"])
+                delta_usb_fs = (fs_ts - usb_ts).total_seconds()
+
+                # USB arrival must precede or be equal to file creation
+                if delta_usb_fs < 0.0:
+                    continue
+
+                fs_path_norm = normalize_windows_path(fs.get("entity", ""))
+                if not fs_path_norm:
+                    continue
+
+                for proc in proc_starts:
+                    # Must be same host
+                    if proc.get("host", "") != host:
+                        continue
+
+                    # Path matching: normalized executable path must match normalized created file path
+                    proc_path_norm = normalize_windows_path(proc.get("entity", ""))
+                    if not proc_path_norm or proc_path_norm != fs_path_norm:
+                        continue
+
+                    proc_ts = parse_iso_utc(proc["ts_utc"])
+                    delta_fs_proc = (proc_ts - fs_ts).total_seconds()
+
+                    # File creation must precede or be equal to process execution
+                    if delta_fs_proc < 0.0:
+                        continue
+
+                    # Total chain window: from USB arrival to process start
+                    total_chain_sec = (proc_ts - usb_ts).total_seconds()
+
+                    # Enforce inclusive 15-minute maximum window (0 <= total <= 900)
+                    if 0.0 <= total_chain_sec <= float(window_sec):
+                        event_ids = [usb["event_id"], fs["event_id"], proc["event_id"]]
+                        act_id = generate_activity_id("R7", host, event_ids)
+
+                        ctx = {
+                            "drive_letter": usb_drive,
+                            "usb_to_fs_seconds": delta_usb_fs,
+                            "fs_to_proc_seconds": delta_fs_proc,
+                            "total_seconds": total_chain_sec,
+                            "window_seconds": window_sec,
+                            "elapsed_seconds": total_chain_sec,
+                        }
+                        confidence, _ = compute_confidence("R7", [usb, fs, proc], ctx)
+                        narrative = generate_narrative("R7", [usb, fs, proc], ctx)
+
+                        activity = Activity(
+                            activity_id=act_id,
+                            rule_id="R7",
+                            rule_name=rule.name,
+                            ts_start_utc=usb["ts_utc"],
+                            ts_end_utc=proc["ts_utc"],
+                            confidence=confidence,
+                            narrative=narrative,
+                        )
+
+                        links = [
+                            ActivityEventLink(
+                                activity_id=act_id,
+                                event_id=usb["event_id"],
+                                rule_id="R7",
+                                reason=f"Stage 1: Removable USB storage arrival mounted on {usb_drive}",
+                            ),
+                            ActivityEventLink(
+                                activity_id=act_id,
+                                event_id=fs["event_id"],
+                                rule_id="R7",
+                                reason=f"Stage 2: Executable payload written to removable volume ({fs.get('action')})",
+                            ),
+                            ActivityEventLink(
+                                activity_id=act_id,
+                                event_id=proc["event_id"],
+                                rule_id="R7",
+                                reason=f"Stage 3: Process executed from payload path within {window_sec}s chain window",
+                            ),
+                        ]
+                        results.append(CorrelatedResult(activity=activity, links=links))
 
         return results
 

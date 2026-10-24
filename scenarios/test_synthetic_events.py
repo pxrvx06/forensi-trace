@@ -69,6 +69,9 @@ class TestSyntheticEventGenerator(unittest.TestCase):
             "usb_copy_run.json",
             "normal_noise.json",
             "edge_cases.json",
+            "bulk_file_creation.json",
+            "log_cleared.json",
+            "timestamp_discrepancy.json",
             "invalid_events.json",
         ]
         for filename in expected_files:
@@ -84,7 +87,14 @@ class TestSyntheticEventGenerator(unittest.TestCase):
     # --------------------------------------------------------------------------
     def test_02_valid_fixtures_conform_to_pydantic_schema(self):
         """Verify all events in valid fixtures pass backend.schema.Event validation."""
-        valid_files = ["usb_copy_run.json", "normal_noise.json", "edge_cases.json"]
+        valid_files = [
+            "usb_copy_run.json",
+            "normal_noise.json",
+            "edge_cases.json",
+            "bulk_file_creation.json",
+            "log_cleared.json",
+            "timestamp_discrepancy.json",
+        ]
         for filename in valid_files:
             file_path = FIXTURES_DIR / filename
             with open(file_path, "r", encoding="utf-8") as f:
@@ -96,6 +106,7 @@ class TestSyntheticEventGenerator(unittest.TestCase):
                     self.assertIsInstance(event_obj, Event)
                 except Exception as err:
                     self.fail(f"Event in {filename}[{idx}] failed Event validation: {err}")
+
 
     # --------------------------------------------------------------------------
     # 3. Required Fields, Timestamps, and SHA-256 Recipe
@@ -283,7 +294,15 @@ class TestSyntheticEventGenerator(unittest.TestCase):
             tmp_path = Path(tmp_dir)
             generate_all_fixtures(tmp_path)
 
-            for filename in ["usb_copy_run.json", "normal_noise.json", "edge_cases.json", "invalid_events.json"]:
+            for filename in [
+                "usb_copy_run.json",
+                "normal_noise.json",
+                "edge_cases.json",
+                "bulk_file_creation.json",
+                "log_cleared.json",
+                "timestamp_discrepancy.json",
+                "invalid_events.json",
+            ]:
                 file_a = (FIXTURES_DIR / filename).read_bytes()
                 file_b = (tmp_path / filename).read_bytes()
                 self.assertEqual(
@@ -291,6 +310,7 @@ class TestSyntheticEventGenerator(unittest.TestCase):
                     file_b,
                     f"Generator output for {filename} is not deterministic across runs!",
                 )
+
 
     # --------------------------------------------------------------------------
     # 8. Negative Testing: Schema Rejection of Invalid Events
