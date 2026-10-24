@@ -3,7 +3,7 @@ engine/config.py - Rules configuration loader and validator for ForensiTrace.
 
 Author: Akash (Correlation Engine & Rules Owner)
 Contract: docs/rules.yaml, docs/schema.md
-Scope: Task 2 - Rules R1, R2, R3
+Scope: Rules R1-R7 Configuration Management
 """
 
 from __future__ import annotations
@@ -35,9 +35,23 @@ class RuleDefinition:
     description: str
     enabled: bool = True
     window_seconds: int = 300
+    min_count: Optional[int] = None
+    threshold_seconds: Optional[int] = None
     trigger: dict[str, Any] = field(default_factory=dict)
     target: dict[str, Any] = field(default_factory=dict)
     context: Optional[dict[str, Any]] = None
+    stages: Optional[dict[str, Any]] = None
+    extra: dict[str, Any] = field(default_factory=dict)
+
+    def get_min_count(self, default: int = 5) -> int:
+        """Returns the configured minimum count threshold for burst rules (e.g. R4)."""
+        return self.min_count if self.min_count is not None else default
+
+    def get_threshold_seconds(self, default: int = 120) -> int:
+        """Returns the configured threshold in seconds (e.g. R6 timestamp discrepancy)."""
+        if self.threshold_seconds is not None:
+            return self.threshold_seconds
+        return self.window_seconds if self.window_seconds is not None else default
 
 
 @dataclass
@@ -91,9 +105,19 @@ def load_rules_config(rules_path: Optional[Path | str] = None) -> RulesConfig:
         description = r_dict.get("description", "")
         enabled = bool(r_dict.get("enabled", True))
         window_sec = int(r_dict.get("window_seconds", 300))
+        min_count = int(r_dict["min_count"]) if "min_count" in r_dict else None
+        threshold_sec = int(r_dict["threshold_seconds"]) if "threshold_seconds" in r_dict else None
         trigger = r_dict.get("trigger", {})
         target = r_dict.get("target", {})
         context = r_dict.get("context")
+        stages = r_dict.get("stages")
+
+        # Capture any additional fields
+        known_keys = {
+            "rule_id", "name", "description", "enabled", "window_seconds",
+            "min_count", "threshold_seconds", "trigger", "target", "context", "stages"
+        }
+        extra = {k: v for k, v in r_dict.items() if k not in known_keys}
 
         parsed_rules[rule_id] = RuleDefinition(
             rule_id=rule_id,
@@ -101,10 +125,18 @@ def load_rules_config(rules_path: Optional[Path | str] = None) -> RulesConfig:
             description=description,
             enabled=enabled,
             window_seconds=window_sec,
+            min_count=min_count,
+            threshold_seconds=threshold_sec,
             trigger=trigger,
             target=target,
             context=context,
+            stages=stages,
+            extra=extra,
         )
 
-    logger.info("[load_rules_config] [PRODUCED] Successfully loaded %d rule(s): %s", len(parsed_rules), list(parsed_rules.keys()))
+    logger.info(
+        "[load_rules_config] [PRODUCED] Successfully loaded %d rule(s): %s",
+        len(parsed_rules),
+        list(parsed_rules.keys())
+    )
     return RulesConfig(version=version, rules=parsed_rules)

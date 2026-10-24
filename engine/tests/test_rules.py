@@ -666,5 +666,704 @@ rules:
             self.assertEqual(len(get_activities(db_path=test_db)), len(activity_ids))
 
 
+# ==============================================================================
+# RULE R7 TESTS: Composite USB Copy-and-Execution Chain (15 min / 900s)
+# ==============================================================================
+class TestRuleR7CompositeChain(unittest.TestCase):
+    """Unit tests for Rule R7: USB arrival -> file created on USB -> process executed from file."""
+
+    def setUp(self):
+        self.engine = CorrelationEngine()
+
+    def test_r7_positive_complete_chain(self):
+        """R7 fires when USB arrives, payload is written, and executed within 15 minutes."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity_type="device",
+            entity="E: (SanDisk Ultra 4C53000123456789)",
+            details={"drive_letter": "E:", "device_name": "SanDisk Ultra", "serial_number": "4C53000123456789"},
+        )
+        fs = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:01:15.000Z",  # +75s
+            action="FILE_CREATED",
+            entity_type="file",
+            entity="E:\\reports\\payload.exe",
+            details={"drive_letter": "E:", "file_path": "E:\\reports\\payload.exe"},
+        )
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:02:30.000Z",  # +150s from USB arrival
+            action="PROCESS_STARTED",
+            entity_type="process",
+            entity="E:\\reports\\payload.exe",
+            user="CONTOSO\\analyst",
+            details={"process_name": "E:\\reports\\payload.exe"},
+        )
+
+        results = self.engine.correlate_events([usb, fs, proc])
+        r7_acts = [r for r in results if r.activity.rule_id == "R7"]
+
+        self.assertEqual(len(r7_acts), 1, "Exactly one composite R7 activity must be produced")
+        r7 = r7_acts[0]
+        self.assertEqual(r7.activity.rule_name, "Composite USB copy and execution chain")
+        self.assertEqual(r7.activity.ts_start_utc, "2026-10-23T10:00:00.000Z")
+        self.assertEqual(r7.activity.ts_end_utc, "2026-10-23T10:02:30.000Z")
+        self.assertGreaterEqual(r7.activity.confidence, 0.95)
+        self.assertEqual(len(r7.links), 3, "Must have exactly 3 provenance links (one for each stage)")
+
+        # Verify link reasons and event traceability
+        link_map = {l.event_id: l.reason for l in r7.links}
+        self.assertIn(usb["event_id"], link_map)
+        self.assertIn(fs["event_id"], link_map)
+        self.assertIn(proc["event_id"], link_map)
+        self.assertIn("Stage 1", link_map[usb["event_id"]])
+        self.assertIn("Stage 2", link_map[fs["event_id"]])
+        self.assertIn("Stage 3", link_map[proc["event_id"]])
+
+    def test_r7_inclusive_boundary_900s(self):
+        """R7 fires when process executes at exactly 900 seconds (inclusive boundary)."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="E: (Flash)",
+            details={"drive_letter": "E:"},
+        )
+        fs = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:05:00.000Z",  # +300s
+            action="FILE_CREATED",
+            entity="E:\\tool.exe",
+            details={"drive_letter": "E:"},
+        )
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:15:00.000Z",  # +900s exactly from USB arrival
+            action="PROCESS_STARTED",
+            entity="E:\\tool.exe",
+        )
+
+        results = self.engine.correlate_events([usb, fs, proc])
+        r7_acts = [r for r in results if r.activity.rule_id == "R7"]
+        self.assertEqual(len(r7_acts), 1, "R7 must fire at exact 900s boundary")
+
+    def test_r7_expired_chain_901s(self):
+        """R7 must NOT fire if total chain elapsed time exceeds 900 seconds."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="E: (Flash)",
+            details={"drive_letter": "E:"},
+        )
+        fs = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:05:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\tool.exe",
+            details={"drive_letter": "E:"},
+        )
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:15:01.000Z",  # +901s (> 900s)
+            action="PROCESS_STARTED",
+            entity="E:\\tool.exe",
+        )
+
+        results = self.engine.correlate_events([usb, fs, proc])
+        r7_acts = [r for r in results if r.activity.rule_id == "R7"]
+        self.assertEqual(len(r7_acts), 0, "R7 must reject chains > 900 seconds")
+
+    def test_r7_incomplete_chains_rejected(self):
+        """R7 must NOT fire if any stage of the 3-stage chain is missing."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="E: (USB)",
+            details={"drive_letter": "E:"},
+        )
+        fs = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:01:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\app.exe",
+            details={"drive_letter": "E:"},
+        )
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:02:00.000Z",
+            action="PROCESS_STARTED",
+            entity="E:\\app.exe",
+        )
+
+        # Missing USB
+        res_no_usb = self.engine.correlate_events([fs, proc])
+        self.assertEqual(len([r for r in res_no_usb if r.activity.rule_id == "R7"]), 0)
+
+        # Missing FS write
+        res_no_fs = self.engine.correlate_events([usb, proc])
+        self.assertEqual(len([r for r in res_no_fs if r.activity.rule_id == "R7"]), 0)
+
+        # Missing Process execution
+        res_no_proc = self.engine.correlate_events([usb, fs])
+        self.assertEqual(len([r for r in res_no_proc if r.activity.rule_id == "R7"]), 0)
+
+    def test_r7_path_mismatch_rejected(self):
+        """R7 must NOT fire if executed process path does not match created file path."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="E: (USB)",
+            details={"drive_letter": "E:"},
+        )
+        fs = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:01:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\staged\\malware.exe",
+            details={"drive_letter": "E:"},
+        )
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:02:00.000Z",
+            action="PROCESS_STARTED",
+            entity="E:\\staged\\other.exe",  # Path mismatch!
+        )
+
+        results = self.engine.correlate_events([usb, fs, proc])
+        r7_acts = [r for r in results if r.activity.rule_id == "R7"]
+        self.assertEqual(len(r7_acts), 0)
+
+    def test_r7_wrong_host_rejected(self):
+        """R7 must NOT fire if events originate from different machines."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            host="HOST-ALPHA",
+            action="DEVICE_ARRIVED",
+            entity="E: (USB)",
+            details={"drive_letter": "E:"},
+        )
+        fs = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:01:00.000Z",
+            host="HOST-ALPHA",
+            action="FILE_CREATED",
+            entity="E:\\malware.exe",
+            details={"drive_letter": "E:"},
+        )
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:02:00.000Z",
+            host="HOST-BETA",  # Wrong host!
+            action="PROCESS_STARTED",
+            entity="E:\\malware.exe",
+        )
+
+        results = self.engine.correlate_events([usb, fs, proc])
+        r7_acts = [r for r in results if r.activity.rule_id == "R7"]
+        self.assertEqual(len(r7_acts), 0)
+
+    def test_r7_out_of_order_and_duplicates_handled(self):
+        """R7 handles out-of-order input and avoids duplicate activities."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="E: (USB)",
+            details={"drive_letter": "E:"},
+        )
+        fs = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:01:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\malware.exe",
+            details={"drive_letter": "E:"},
+        )
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:02:00.000Z",
+            action="PROCESS_STARTED",
+            entity="E:\\malware.exe",
+        )
+
+        # Reverse order with duplicate fs event
+        results = self.engine.correlate_events([proc, fs, usb, fs])
+        r7_acts = [r for r in results if r.activity.rule_id == "R7"]
+        self.assertEqual(len(r7_acts), 1, "Must produce exactly one composite R7 activity")
+
+
+# ==============================================================================
+# RULE R4 TESTS: Bulk File Creation on Removable Drive (60s window)
+# ==============================================================================
+class TestRuleR4BulkFileCreation(unittest.TestCase):
+    """Unit tests for Rule R4: Burst of file creation on removable storage."""
+
+    def setUp(self):
+        self.engine = CorrelationEngine()
+
+    def test_r4_positive_burst_detection(self):
+        """R4 fires when 5 or more files are created on removable drive within 60s."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T12:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="F: (Kingston Flash)",
+            details={"drive_letter": "F:", "device_name": "Kingston"},
+        )
+        fs_events = [
+            make_test_event(
+                source="fs",
+                ts_utc=f"2026-10-23T12:00:{i * 5:02d}.000Z",  # 0s, 5s, 10s, 15s, 20s (total 20s <= 60s)
+                action="FILE_CREATED",
+                entity=f"F:\\exfil\\data_{i}.pdf",
+                details={"drive_letter": "F:"},
+            )
+            for i in range(1, 6)
+        ]
+
+        results = self.engine.correlate_events([usb] + fs_events)
+        r4_acts = [r for r in results if r.activity.rule_id == "R4"]
+
+        self.assertEqual(len(r4_acts), 1)
+        r4 = r4_acts[0]
+        self.assertEqual(r4.activity.rule_name, "Bulk file creation on removable drive")
+        self.assertEqual(r4.activity.ts_start_utc, "2026-10-23T12:00:05.000Z")
+        self.assertEqual(r4.activity.ts_end_utc, "2026-10-23T12:00:25.000Z")
+        self.assertGreaterEqual(r4.activity.confidence, 0.85)
+        # Should link all 5 files + USB arrival evidence
+        self.assertGreaterEqual(len(r4.links), 5)
+
+    def test_r4_sub_threshold_rejected(self):
+        """R4 must NOT fire if fewer than 5 files (default threshold) are created."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T12:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="F: (Flash)",
+            details={"drive_letter": "F:"},
+        )
+        fs_events = [
+            make_test_event(
+                source="fs",
+                ts_utc=f"2026-10-23T12:00:{i * 5:02d}.000Z",
+                action="FILE_CREATED",
+                entity=f"F:\\data_{i}.pdf",
+                details={"drive_letter": "F:"},
+            )
+            for i in range(1, 5)  # Only 4 files (< 5)
+        ]
+
+        results = self.engine.correlate_events([usb] + fs_events)
+        r4_acts = [r for r in results if r.activity.rule_id == "R4"]
+        self.assertEqual(len(r4_acts), 0)
+
+    def test_r4_boundary_span_exceeded(self):
+        """R4 must NOT group events spanning more than 60 seconds into a single burst."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T12:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="F: (Flash)",
+            details={"drive_letter": "F:"},
+        )
+        # 5 files spread 20 seconds apart: total span 80s (> 60s)
+        fs_events = [
+            make_test_event(
+                source="fs",
+                ts_utc=f"2026-10-23T12:{i * 20 // 60:02d}:{i * 20 % 60:02d}.000Z",
+                action="FILE_CREATED",
+                entity=f"F:\\data_{i}.pdf",
+                details={"drive_letter": "F:"},
+            )
+            for i in range(1, 6)
+        ]
+
+        results = self.engine.correlate_events([usb] + fs_events)
+        r4_acts = [r for r in results if r.activity.rule_id == "R4"]
+        self.assertEqual(len(r4_acts), 0, "Spread of > 60s across 5 files must not trigger 60s burst")
+
+    def test_r4_non_removable_drive_rejected(self):
+        """R4 must NOT fire on fixed drives (e.g. C:) without removable evidence."""
+        # Files created on C: drive with no USB arrival
+        fs_events = [
+            make_test_event(
+                source="fs",
+                ts_utc=f"2026-10-23T12:00:{i * 5:02d}.000Z",
+                action="FILE_CREATED",
+                entity=f"C:\\temp\\file_{i}.txt",
+                details={"drive_letter": "C:"},
+            )
+            for i in range(1, 6)
+        ]
+        results = self.engine.correlate_events(fs_events)
+        r4_acts = [r for r in results if r.activity.rule_id == "R4"]
+        self.assertEqual(len(r4_acts), 0)
+
+    def test_r4_duplicate_events_not_double_counted(self):
+        """Duplicate emissions of the same file creation must not inflate burst count."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T12:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="F: (Flash)",
+            details={"drive_letter": "F:"},
+        )
+        # Only 2 distinct files, repeated 3 times each (total 6 events)
+        fs_1 = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T12:00:05.000Z",
+            action="FILE_CREATED",
+            entity="F:\\data_1.pdf",
+            details={"drive_letter": "F:"},
+        )
+        fs_2 = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T12:00:10.000Z",
+            action="FILE_CREATED",
+            entity="F:\\data_2.pdf",
+            details={"drive_letter": "F:"},
+        )
+        duplicates = [fs_1, fs_1, fs_1, fs_2, fs_2, fs_2]
+
+        results = self.engine.correlate_events([usb] + duplicates)
+        r4_acts = [r for r in results if r.activity.rule_id == "R4"]
+        self.assertEqual(len(r4_acts), 0, "Duplicate files must not satisfy min_count threshold")
+
+
+# ==============================================================================
+# RULE R5 TESTS: Log Clearing Near Other Activity (10 min / 600s)
+# ==============================================================================
+class TestRuleR5LogClearing(unittest.TestCase):
+    """Unit tests for Rule R5: LOG_CLEARED within 10 minutes of relevant activity."""
+
+    def setUp(self):
+        self.engine = CorrelationEngine()
+
+    def test_r5_positive_log_cleared_after_process(self):
+        """R5 fires when Security Log 1102 is cleared within 10 minutes of process start."""
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="PROCESS_STARTED",
+            entity="C:\\Windows\\System32\\cmd.exe",
+            user="CONTOSO\\attacker",
+        )
+        clear = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:00:45.000Z",  # +45s
+            action="LOG_CLEARED",
+            entity="C:\\Windows\\System32\\winevt\\Logs\\Security.evtx",
+            user="CONTOSO\\attacker",
+            details={"channel": "Security", "event_code": 1102},
+        )
+
+        results = self.engine.correlate_events([proc, clear])
+        r5_acts = [r for r in results if r.activity.rule_id == "R5"]
+
+        self.assertEqual(len(r5_acts), 1)
+        r5 = r5_acts[0]
+        self.assertEqual(r5.activity.rule_name, "Log clearing near other activity")
+        self.assertEqual(len(r5.links), 2)
+        narrative_lower = r5.activity.narrative.lower()
+        self.assertTrue(
+            "anti-forensics" in narrative_lower or "review" in narrative_lower or "routine maintenance" in narrative_lower,
+            f"Narrative should contain cautious review wording: {r5.activity.narrative}"
+        )
+
+
+    def test_r5_positive_log_cleared_before_activity(self):
+        """R5 fires when log is cleared within 10 minutes preceding file activity."""
+        clear = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="LOG_CLEARED",
+            entity="C:\\Windows\\System32\\winevt\\Logs\\System.evtx",
+            details={"channel": "System", "event_code": 104},
+        )
+        fs = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:05:00.000Z",  # +300s
+            action="FILE_CREATED",
+            entity="E:\\payload.exe",
+            details={"drive_letter": "E:"},
+        )
+
+        results = self.engine.correlate_events([clear, fs])
+        r5_acts = [r for r in results if r.activity.rule_id == "R5"]
+        self.assertEqual(len(r5_acts), 1)
+
+    def test_r5_boundary_600s_inclusive(self):
+        """R5 fires at exactly 600s boundary."""
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="PROCESS_STARTED",
+            entity="C:\\Windows\\System32\\calc.exe",
+        )
+        clear = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:10:00.000Z",  # +600s exactly
+            action="LOG_CLEARED",
+            entity="Security.evtx",
+            details={"channel": "Security", "event_code": 1102},
+        )
+        results = self.engine.correlate_events([proc, clear])
+        r5_acts = [r for r in results if r.activity.rule_id == "R5"]
+        self.assertEqual(len(r5_acts), 1)
+
+    def test_r5_expired_601s_rejected(self):
+        """R5 must NOT fire if log cleared > 600 seconds after activity."""
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="PROCESS_STARTED",
+            entity="C:\\Windows\\System32\\calc.exe",
+        )
+        clear = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:10:01.000Z",  # +601s
+            action="LOG_CLEARED",
+            entity="Security.evtx",
+            details={"channel": "Security", "event_code": 1102},
+        )
+        results = self.engine.correlate_events([proc, clear])
+        r5_acts = [r for r in results if r.activity.rule_id == "R5"]
+        self.assertEqual(len(r5_acts), 0)
+
+    def test_r5_different_host_rejected(self):
+        """R5 must NOT fire if log clearing and activity occur on different hosts."""
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            host="HOST-A",
+            action="PROCESS_STARTED",
+            entity="C:\\app.exe",
+        )
+        clear = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:00:30.000Z",
+            host="HOST-B",  # Different host!
+            action="LOG_CLEARED",
+            entity="Security.evtx",
+            details={"channel": "Security", "event_code": 1102},
+        )
+        results = self.engine.correlate_events([proc, clear])
+        r5_acts = [r for r in results if r.activity.rule_id == "R5"]
+        self.assertEqual(len(r5_acts), 0)
+
+
+# ==============================================================================
+# RULE R6 TESTS: Timestamp Disagreement (> 120s threshold)
+# ==============================================================================
+class TestRuleR6TimestampDiscrepancy(unittest.TestCase):
+    """Unit tests for Rule R6: Discrepancy between mtime and collector observation time."""
+
+    def setUp(self):
+        self.engine = CorrelationEngine()
+
+    def test_r6_positive_discrepancy_above_threshold(self):
+        """R6 fires when reported mtime differs from collector observation time by > 120s."""
+        ev = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:00:00.000Z",  # Reported mtime
+            action="FILE_MODIFIED",
+            entity="E:\\suspicious.dll",
+            details={
+                "drive_letter": "E:",
+                "mtime_utc": "2026-10-23T10:00:00.000Z",
+                "ts_observed_utc": "2026-10-23T11:00:00.000Z",  # Observed 3600s later
+            },
+        )
+        results = self.engine.correlate_events([ev])
+        r6_acts = [r for r in results if r.activity.rule_id == "R6"]
+
+        self.assertEqual(len(r6_acts), 1)
+        r6 = r6_acts[0]
+        self.assertEqual(r6.activity.rule_name, "Timestamp disagreement")
+        self.assertGreaterEqual(r6.activity.confidence, 0.85)
+        self.assertEqual(len(r6.links), 1)
+        self.assertIn("3600s", r6.links[0].reason)
+
+    def test_r6_boundary_120s_not_triggered(self):
+        """R6 must NOT fire if discrepancy is exactly 120.0s (boundary is strictly > 120s)."""
+        ev = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\test.txt",
+            details={
+                "drive_letter": "E:",
+                "mtime_utc": "2026-10-23T10:00:00.000Z",
+                "ts_observed_utc": "2026-10-23T10:02:00.000Z",  # Exactly 120s difference
+            },
+        )
+        results = self.engine.correlate_events([ev])
+        r6_acts = [r for r in results if r.activity.rule_id == "R6"]
+        self.assertEqual(len(r6_acts), 0, "Exact 120.0s difference must not trigger strictly > 120s threshold")
+
+    def test_r6_boundary_121s_triggered(self):
+        """R6 fires when discrepancy is 121 seconds (> 120s)."""
+        ev = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\test.txt",
+            details={
+                "drive_letter": "E:",
+                "mtime_utc": "2026-10-23T10:00:00.000Z",
+                "ts_observed_utc": "2026-10-23T10:02:01.000Z",  # 121s (> 120s)
+            },
+        )
+        results = self.engine.correlate_events([ev])
+        r6_acts = [r for r in results if r.activity.rule_id == "R6"]
+        self.assertEqual(len(r6_acts), 1)
+
+    def test_r6_normal_timestamps_5s(self):
+        """R6 must NOT fire for normal timestamp differences within tolerance (e.g. 5s)."""
+        ev = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\normal.txt",
+            details={
+                "drive_letter": "E:",
+                "mtime_utc": "2026-10-23T10:00:00.000Z",
+                "ts_observed_utc": "2026-10-23T10:00:05.000Z",  # 5s difference
+            },
+        )
+        results = self.engine.correlate_events([ev])
+        r6_acts = [r for r in results if r.activity.rule_id == "R6"]
+        self.assertEqual(len(r6_acts), 0)
+
+    def test_r6_missing_observation_timestamp_skipped_safely(self):
+        """Events without ts_observed_utc must be skipped safely without throwing exceptions."""
+        ev = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\normal.txt",
+            details={"drive_letter": "E:"},  # No ts_observed_utc
+        )
+        results = self.engine.correlate_events([ev])
+        r6_acts = [r for r in results if r.activity.rule_id == "R6"]
+        self.assertEqual(len(r6_acts), 0)
+
+    def test_r6_malformed_timestamp_handled_safely(self):
+        """Malformed timestamp strings in ts_observed_utc must not crash the engine."""
+        ev = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\normal.txt",
+            details={
+                "drive_letter": "E:",
+                "ts_observed_utc": "invalid-datetime-string",
+            },
+        )
+        results = self.engine.correlate_events([ev])
+        r6_acts = [r for r in results if r.activity.rule_id == "R6"]
+        self.assertEqual(len(r6_acts), 0)
+
+
+# ==============================================================================
+# CONFIDENCE SCORING & EVIDENCE PROVENANCE TESTS
+# ==============================================================================
+class TestConfidenceAndProvenance(unittest.TestCase):
+    """Unit tests for confidence scoring determinism, evidence provenance, and plain-English narratives."""
+
+    def setUp(self):
+        self.engine = CorrelationEngine()
+
+    def test_confidence_bounded_and_deterministic(self):
+        """Verify confidence scores are deterministically between 0.0 and 1.0."""
+        from engine.scoring import compute_confidence
+
+        for rule in ["R1", "R2", "R3", "R4", "R5", "R6", "R7"]:
+            score_1, factors_1 = compute_confidence(rule, [])
+            score_2, factors_2 = compute_confidence(rule, [])
+            self.assertEqual(score_1, score_2)
+            self.assertGreaterEqual(score_1, 0.0)
+            self.assertLessEqual(score_1, 1.0)
+            self.assertGreater(len(factors_1), 0)
+
+    def test_narratives_cite_event_ids(self):
+        """Verify plain-English narratives cite the actual supporting event IDs."""
+        usb = make_test_event(
+            source="usb",
+            ts_utc="2026-10-23T10:00:00.000Z",
+            action="DEVICE_ARRIVED",
+            entity="E: (USB)",
+            details={"drive_letter": "E:"},
+        )
+        fs = make_test_event(
+            source="fs",
+            ts_utc="2026-10-23T10:01:00.000Z",
+            action="FILE_CREATED",
+            entity="E:\\tool.exe",
+            details={"drive_letter": "E:"},
+        )
+        proc = make_test_event(
+            source="eventlog",
+            ts_utc="2026-10-23T10:02:00.000Z",
+            action="PROCESS_STARTED",
+            entity="E:\\tool.exe",
+        )
+
+        results = self.engine.correlate_events([usb, fs, proc])
+        for r in results:
+            self.assertIsNotNone(r.activity.narrative)
+            # Narrative or links must cite the short event id
+            cited = any(e["event_id"][:8] in r.activity.narrative for e in [usb, fs, proc])
+            self.assertTrue(cited, f"Narrative '{r.activity.narrative}' should cite supporting event IDs")
+
+
+# ==============================================================================
+# FALSE POSITIVE EVALUATION & TUNING TESTS
+# ==============================================================================
+class TestFalsePositiveEvaluation(unittest.TestCase):
+    """Evaluates rules against normal background noise and real recorded collector samples."""
+
+    def setUp(self):
+        self.engine = CorrelationEngine()
+
+    def test_noise_produces_no_suspicious_detections(self):
+        """normal_noise.json contains benign everyday activity and must NOT fire R7, R4, R5, or R6."""
+        with open(FIXTURES_DIR / "normal_noise.json", "r", encoding="utf-8") as f:
+            noise_events = json.load(f)
+
+        results = self.engine.correlate_events(noise_events)
+        rule_ids = {r.activity.rule_id for r in results}
+
+        # Benign noise must not fire composite attack chain R7
+        self.assertNotIn("R7", rule_ids, "normal_noise.json must not trigger Rule R7 composite chain")
+
+        # Benign noise must not fire bulk file creation R4
+        self.assertNotIn("R4", rule_ids, "normal_noise.json must not trigger Rule R4 bulk creation")
+
+        # Benign noise must not fire log clearing R5
+        self.assertNotIn("R5", rule_ids, "normal_noise.json must not trigger Rule R5 log clearing")
+
+        # Benign noise must not fire timestamp disagreement R6
+        self.assertNotIn("R6", rule_ids, "normal_noise.json must not trigger Rule R6 timestamp disagreement")
+
+    def test_real_collector_samples_execute_cleanly(self):
+        """Real USB and FS collector recordings in docs/samples/ parse and execute through engine without error."""
+        samples_dir = REPO_ROOT / "docs" / "samples"
+        for sample_file in ["usb_samples.json", "fs_samples.json"]:
+            path = samples_dir / sample_file
+            if path.exists():
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                events = data.get("events", data) if isinstance(data, dict) else data
+                results = self.engine.correlate_events(events)
+                self.assertIsInstance(results, list)
+
+
 if __name__ == "__main__":
     unittest.main()
