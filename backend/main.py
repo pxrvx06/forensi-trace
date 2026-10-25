@@ -196,6 +196,40 @@ def get_single_event(event_id: str):
 
 
 # ---------------------------------------------------------
+# Activities & Evidence Provenance Endpoints
+# ---------------------------------------------------------
+@app.get("/activities", tags=["Activities"])
+def list_activities(
+    limit: int = Query(100, ge=1, le=1000, description="Max activities to return"),
+    offset: int = Query(0, ge=0, description="Pagination offset")
+):
+    """Query reconstructed activities ordered chronologically descending."""
+    logger.info("[list_activities] [RECEIVED] limit=%d offset=%d", limit, offset)
+    activities = get_activities(limit=limit, offset=offset)
+    logger.info("[list_activities] [PRODUCED] Returning %d activity record(s)", len(activities))
+    return {
+        "count": len(activities),
+        "limit": limit,
+        "offset": offset,
+        "activities": activities
+    }
+
+
+@app.get("/activities/{activity_id}", tags=["Activities"])
+def get_single_activity(activity_id: str):
+    """Retrieve details and complete evidence provenance chain of an activity by ID."""
+    logger.info("[get_single_activity] [RECEIVED] Query for activity_id='%s'", activity_id)
+    activity = get_activity_by_id(activity_id, include_evidence=True)
+    if not activity:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Activity with id '{activity_id}' not found"
+        )
+    logger.info("[get_single_activity] [PRODUCED] Found activity_id='%s'", activity_id)
+    return activity
+
+
+# ---------------------------------------------------------
 # Demo & Administration Helper Endpoint
 # ---------------------------------------------------------
 @app.post("/reset", tags=["Admin"])

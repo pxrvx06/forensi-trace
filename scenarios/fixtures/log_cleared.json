@@ -1,0 +1,64 @@
+[
+  {
+    "event_id": "5cff5d00291df1cc499959ae94d812165f497125dadb1c2d8d6b29291dde898e",
+    "source": "fs",
+    "ts_utc": "2026-10-23T15:00:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "C:\\temp\\staging_script.ps1",
+    "details": {
+      "drive_letter": "C:",
+      "file_path": "C:\\temp\\staging_script.ps1",
+      "file_name": "staging_script.ps1",
+      "raw_record_id": "FILE_CREATED|C:\\temp\\staging_script.ps1"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "C:\\temp\\staging_script.ps1"
+    }
+  },
+  {
+    "event_id": "2003e86180313b0f1fafa057d3ada61e9c55299b9dfbe6c2d84cf8dfc82112d9",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T15:00:20.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "details": {
+      "event_record_id": 9483010,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "command_line": "powershell.exe -ExecutionPolicy Bypass -File C:\\temp\\staging_script.ps1",
+      "raw_record_id": "Security:9483010"
+    },
+    "raw": {
+      "EventID": 4688,
+      "NewProcessName": "powershell.exe"
+    }
+  },
+  {
+    "event_id": "ba75e05e9c639e703dd46a328b2f6845926dd5acf662ffc3dcc5f08167a37d64",
+    "source": "eventlog",
+    "ts_utc": "2026-10-23T15:01:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "LOG_CLEARED",
+    "entity_type": "file",
+    "entity": "C:\\Windows\\System32\\winevt\\Logs\\Security.evtx",
+    "details": {
+      "event_record_id": 9483011,
+      "channel": "Security",
+      "event_code": 1102,
+      "raw_record_id": "Security:9483011"
+    },
+    "raw": {
+      "EventID": 1102,
+      "Channel": "Security"
+    }
+  }
+]

@@ -162,6 +162,52 @@ class TestFastAPIBackend(unittest.TestCase):
         resp = self.client.post("/events", json=invalid_payload)
         self.assertEqual(resp.status_code, 422)
 
+    def test_list_and_get_activities(self):
+        """Verify GET /activities and GET /activities/{activity_id} return stored activities."""
+        from backend.db import insert_activity
+        from backend.schema import Activity, ActivityEventLink
+
+        # Ingest events first so foreign keys succeed
+        self.client.post("/events", json={"events": self.sample_events})
+
+        act = Activity(
+            activity_id="act_r7_test001",
+            rule_id="R7",
+            rule_name="Composite USB copy and execution chain",
+            ts_start_utc="2026-10-23T10:00:00.120Z",
+            ts_end_utc="2026-10-23T10:02:30.800Z",
+            confidence=0.98,
+            narrative="Test narrative citing evidence.",
+        )
+        links = [
+            ActivityEventLink(
+                activity_id="act_r7_test001",
+                event_id=self.sample_events[0]["event_id"],
+                rule_id="R7",
+                reason="USB device arrived",
+            )
+        ]
+        insert_activity(act, links, db_path=self.test_db_path)
+
+        # 1. Test GET /activities
+        resp = self.client.get("/activities")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["activities"][0]["activity_id"], "act_r7_test001")
+
+        # 2. Test GET /activities/{activity_id}
+        act_resp = self.client.get("/activities/act_r7_test001")
+        self.assertEqual(act_resp.status_code, 200)
+        act_data = act_resp.json()
+        self.assertEqual(act_data["activity_id"], "act_r7_test001")
+        self.assertEqual(len(act_data["evidence_chain"]), 1)
+        self.assertEqual(act_data["evidence_chain"][0]["event_id"], self.sample_events[0]["event_id"])
+
+        # 3. Test 404 for missing activity
+        resp_404 = self.client.get("/activities/nonexistent_act")
+        self.assertEqual(resp_404.status_code, 404)
+
 
 if __name__ == "__main__":
     unittest.main()
