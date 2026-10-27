@@ -353,5 +353,29 @@ class TestEventLogCollector(unittest.TestCase):
             shutil.rmtree(test_dir, ignore_errors=True)
 
 
+    def test_resolve_nt_device_path(self):
+        """Verifies that NT device paths are resolved to DOS drive letter paths."""
+        from agent.collectors.eventlog_collector import resolve_nt_device_path
+        # Non-NT path returns unchanged
+        self.assertEqual(resolve_nt_device_path(r"C:\Windows\cmd.exe"), r"C:\Windows\cmd.exe")
+        self.assertEqual(resolve_nt_device_path(""), "")
+        # Fallback via command_line
+        resolved = resolve_nt_device_path(
+            r"\Device\HarddiskVolume99\payload.exe",
+            command_line=r'"D:\tools\payload.exe" --silent'
+        )
+        self.assertEqual(resolved, r"D:\tools\payload.exe")
+
+    def test_4688_with_nt_device_path(self):
+        """Verifies that Event 4688 with NT device path resolves to DOS drive letter in event dict."""
+        xml_nt = XML_4688_VALID.replace(
+            r'<Data Name="NewProcessName">E:\reports\payload.exe</Data>',
+            r'<Data Name="NewProcessName">\Device\HarddiskVolume11\payload.exe</Data>'
+        )
+        res = parse_eventlog_xml(xml_nt)
+        self.assertIsNotNone(res)
+        self.assertEqual(res["entity"], r"E:\reports\payload.exe")
+
+
 if __name__ == "__main__":
     unittest.main()

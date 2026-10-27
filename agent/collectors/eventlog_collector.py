@@ -70,6 +70,44 @@ def normalize_eventlog_timestamp(system_time_str: str) -> str:
     return formatted
 
 
+def resolve_nt_device_path(nt_path: str, command_line: str = "") -> str:
+    """
+    Resolves Windows NT device namespace paths (e.g. '\\Device\\HarddiskVolume11\\payload.exe')
+    to standard DOS drive-letter paths (e.g. 'D:\\payload.exe').
+    
+    1. Uses kernel32.QueryDosDeviceW across drive letters ('A:' to 'Z:').
+    2. Falls back to parsing drive letter from command_line if QueryDosDeviceW is unavailable or on non-Windows.
+    """
+    if not nt_path or not nt_path.startswith("\\Device\\"):
+        return nt_path
+
+    # Method 1: Live Windows QueryDosDeviceW lookup
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            kernel32 = ctypes.windll.kernel32
+            buf = ctypes.create_unicode_buffer(1000)
+            for char_code in range(ord('A'), ord('Z') + 1):
+                drive = f"{chr(char_code)}:"
+                if kernel32.QueryDosDeviceW(drive, buf, 1000):
+                    dev_name = buf.value
+                    if dev_name and nt_path.lower().startswith(dev_name.lower()):
+                        return drive + nt_path[len(dev_name):]
+        except Exception:
+            pass
+
+    # Method 2: Fallback extraction from command_line if available
+    if command_line:
+        match = re.search(r'\b([A-Za-z]:\\[^"\'\s]+)', command_line)
+        if match:
+            candidate = match.group(1).strip()
+            filename = nt_path.split("\\")[-1].lower()
+            if candidate.lower().endswith(filename):
+                return candidate[0].upper() + candidate[1:]
+
+    return nt_path
+
+
 def parse_eventlog_xml(
     xml_content: str,
     default_host: Optional[str] = None
@@ -166,6 +204,9 @@ def parse_eventlog_xml(
             logger.warning("[parse_eventlog_xml] Event 4688 missing 'NewProcessName'; rejecting record.")
             return None
 
+        # Resolve Windows NT device namespace (e.g. \Device\HarddiskVolume11\calc_payload.exe -> D:\calc_payload.exe)
+        new_process_name = resolve_nt_device_path(new_process_name, event_data.get("CommandLine", ""))
+
         # Canonicalize Windows path backslashes and drive letter
         new_process_name = new_process_name.replace("/", "\\")
         if len(new_process_name) >= 2 and new_process_name[1] == ":":
@@ -186,7 +227,7 @@ def parse_eventlog_xml(
             "process_id": event_data.get("NewProcessId", ""),
             "process_name": new_process_name,
             "parent_process_id": event_data.get("ProcessId", ""),
-            "parent_process_name": event_data.get("ParentProcessName", "").replace("/", "\\"),
+            "parent_process_name": resolve_nt_device_path(event_data.get("ParentProcessName", "")).replace("/", "\\"),
             "command_line": event_data.get("CommandLine", ""),
             "subject_user_sid": event_data.get("SubjectUserSid", ""),
             "subject_logon_id": event_data.get("TargetLogonId", event_data.get("SubjectLogonId", "")),
