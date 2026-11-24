@@ -1,0 +1,144 @@
+[
+  {
+    "event_id": "83e0a568b1e95c1fb75871c32a644a1d69d577d44cc3fae5fa844e21bccce3ea",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T13:00:00.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "details": {
+      "process_name": "powershell.exe",
+      "command_line": "\"powershell.exe\"",
+      "raw_record_id": "Security:2892010",
+      "session_id": "baseline_session_03"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2892010"
+    }
+  },
+  {
+    "event_id": "c650908fcdd394fa6f1d62459b43bd8bba8d8021e6973c1cb5bc15631c11d0a5",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T13:00:10.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Git\\cmd\\git.exe",
+    "details": {
+      "process_name": "git.exe",
+      "command_line": "\"git.exe\" status",
+      "raw_record_id": "Security:2892021",
+      "session_id": "baseline_session_03"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2892021"
+    }
+  },
+  {
+    "event_id": "ce5b18bc45205bb2a299e64d5d88a318636c59d4b747564544058c5972126315",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T13:00:20.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Git\\cmd\\git.exe",
+    "details": {
+      "process_name": "git.exe",
+      "command_line": "\"git.exe\" branch -a",
+      "raw_record_id": "Security:2892022",
+      "session_id": "baseline_session_03"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2892022"
+    }
+  },
+  {
+    "event_id": "d6bc93c03f9951cfe9db617a6d31fba538e67716f5ba9f434e8ff93190204a01",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T13:00:30.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Git\\cmd\\git.exe",
+    "details": {
+      "process_name": "git.exe",
+      "command_line": "\"git.exe\" log -n 5",
+      "raw_record_id": "Security:2892023",
+      "session_id": "baseline_session_03"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2892023"
+    }
+  },
+  {
+    "event_id": "258d52335cba83bee5458cd7c81ae4e9d2688529c8ed4e44221885e94936e97d",
+    "source": "fs",
+    "ts_utc": "2026-11-20T13:00:45.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "C:\\PROJECTS\\FORENSITRACE_1\\agent\\utils.py",
+    "details": {
+      "file_name": "utils.py",
+      "extension": ".py",
+      "file_size_bytes": 1280,
+      "raw_record_id": "FILE_CREATED|C:\\PROJECTS\\FORENSITRACE_1\\agent\\utils.py",
+      "session_id": "baseline_session_03"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_CREATED|C:\\PROJECTS\\FORENSITRACE_1\\agent\\utils.py"
+    }
+  },
+  {
+    "event_id": "07de3944bfabd90d8cad68c490b5c95228d3103b67df9ecd42c7212e7a7e16da",
+    "source": "fs",
+    "ts_utc": "2026-11-20T13:00:55.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_MODIFIED",
+    "entity_type": "file",
+    "entity": "C:\\PROJECTS\\FORENSITRACE_1\\agent\\utils.py",
+    "details": {
+      "file_name": "utils.py",
+      "extension": ".py",
+      "file_size_bytes": 2150,
+      "raw_record_id": "FILE_MODIFIED|C:\\PROJECTS\\FORENSITRACE_1\\agent\\utils.py",
+      "session_id": "baseline_session_03"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_MODIFIED|C:\\PROJECTS\\FORENSITRACE_1\\agent\\utils.py"
+    }
+  },
+  {
+    "event_id": "72751916d5138d09cb7208d3ae210068a6f48d20ef4e3208837df5d8290a7b84",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T13:01:15.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Users\\analyst\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "details": {
+      "process_name": "python.exe",
+      "command_line": "\"python.exe\" -m unittest discover",
+      "raw_record_id": "Security:2892060",
+      "session_id": "baseline_session_03"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2892060"
+    }
+  }
+]
