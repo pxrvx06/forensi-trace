@@ -1,0 +1,289 @@
+{
+  "scenario_id": "scenario_c",
+  "name": "Scenario C: Multi-Vector Anti-Forensics and Exfiltration",
+  "label": "malicious",
+  "description": "Bulk exfiltration burst on removable media, followed by Security log clearing and NTFS timestamp manipulation.",
+  "expected_rules": [
+    "R4",
+    "R5",
+    "R6"
+  ],
+  "expected_threat_level": "CRITICAL",
+  "event_count": 9,
+  "events": [
+    {
+      "event_id": "b3169709b71da09e77224547e09bb3fd87fce186b4c81a8438a402fb840f1222",
+      "source": "usb",
+      "ts_utc": "2026-10-23T15:00:00.100Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "G: (Transcend JetFlash 1234567890ABCDEF)",
+      "details": {
+        "drive_letter": "G:",
+        "device_name": "Transcend JetFlash",
+        "serial_number": "1234567890ABCDEF",
+        "vendor_id": "058f",
+        "product_id": "6387",
+        "raw_record_id": "USBSTOR\\DISK&VEN_TRANSCEND&PROD_JETFLASH\\1234567890ABCDEF",
+        "scenario_id": "scenario_c",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "DeviceInstanceId": "USBSTOR\\DISK&VEN_TRANSCEND&PROD_JETFLASH\\1234567890ABCDEF&0",
+        "Class": "DiskDrive",
+        "FriendlyName": "Transcend JetFlash USB Device",
+        "DriveLetter": "G:",
+        "EventType": "DBT_DEVICEARRIVAL"
+      }
+    },
+    {
+      "event_id": "814859652035216676014d2b54f9fe571ab7e3b1a94548d57f321ef60ee672ae",
+      "source": "fs",
+      "ts_utc": "2026-10-23T15:00:14.200Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_CREATED",
+      "entity_type": "file",
+      "entity": "G:\\exfil_01.dat",
+      "details": {
+        "drive_letter": "G:",
+        "file_path": "G:\\exfil_01.dat",
+        "file_name": "exfil_01.dat",
+        "extension": ".dat",
+        "file_size_bytes": 5242880,
+        "is_directory": false,
+        "raw_record_id": "FILE_CREATED|G:\\exfil_01.dat",
+        "scenario_id": "scenario_c",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "created",
+        "src_path": "G:\\exfil_01.dat",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "8c1e034cbb7139f8ae447244898c35819110d259d85e37e6cd7994dda079902d",
+      "source": "fs",
+      "ts_utc": "2026-10-23T15:00:18.200Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_CREATED",
+      "entity_type": "file",
+      "entity": "G:\\exfil_02.dat",
+      "details": {
+        "drive_letter": "G:",
+        "file_path": "G:\\exfil_02.dat",
+        "file_name": "exfil_02.dat",
+        "extension": ".dat",
+        "file_size_bytes": 5242880,
+        "is_directory": false,
+        "raw_record_id": "FILE_CREATED|G:\\exfil_02.dat",
+        "scenario_id": "scenario_c",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "created",
+        "src_path": "G:\\exfil_02.dat",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "6af2edba25f6da4fc23b56fe96c157ab772a91562dc16ec593a51d8f2640794c",
+      "source": "fs",
+      "ts_utc": "2026-10-23T15:00:22.200Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_CREATED",
+      "entity_type": "file",
+      "entity": "G:\\exfil_03.dat",
+      "details": {
+        "drive_letter": "G:",
+        "file_path": "G:\\exfil_03.dat",
+        "file_name": "exfil_03.dat",
+        "extension": ".dat",
+        "file_size_bytes": 5242880,
+        "is_directory": false,
+        "raw_record_id": "FILE_CREATED|G:\\exfil_03.dat",
+        "scenario_id": "scenario_c",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "created",
+        "src_path": "G:\\exfil_03.dat",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "9976ae55cd0b7b3a8d7a088f2e8462fba23792f1f6cb384d8a4b15738170148b",
+      "source": "fs",
+      "ts_utc": "2026-10-23T15:00:26.200Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_CREATED",
+      "entity_type": "file",
+      "entity": "G:\\exfil_04.dat",
+      "details": {
+        "drive_letter": "G:",
+        "file_path": "G:\\exfil_04.dat",
+        "file_name": "exfil_04.dat",
+        "extension": ".dat",
+        "file_size_bytes": 5242880,
+        "is_directory": false,
+        "raw_record_id": "FILE_CREATED|G:\\exfil_04.dat",
+        "scenario_id": "scenario_c",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "created",
+        "src_path": "G:\\exfil_04.dat",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "17876fbc7596865a02c962bae681044e4fec46dda011fa72295b280be50626fa",
+      "source": "fs",
+      "ts_utc": "2026-10-23T15:00:30.200Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_CREATED",
+      "entity_type": "file",
+      "entity": "G:\\exfil_05.dat",
+      "details": {
+        "drive_letter": "G:",
+        "file_path": "G:\\exfil_05.dat",
+        "file_name": "exfil_05.dat",
+        "extension": ".dat",
+        "file_size_bytes": 5242880,
+        "is_directory": false,
+        "raw_record_id": "FILE_CREATED|G:\\exfil_05.dat",
+        "scenario_id": "scenario_c",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "created",
+        "src_path": "G:\\exfil_05.dat",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "390a675cbd0bc83d6efa3ddaba29e4d6fd90421f90d726b2dfca12a386ff3096",
+      "source": "fs",
+      "ts_utc": "2026-10-23T15:00:34.200Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_CREATED",
+      "entity_type": "file",
+      "entity": "G:\\exfil_06.dat",
+      "details": {
+        "drive_letter": "G:",
+        "file_path": "G:\\exfil_06.dat",
+        "file_name": "exfil_06.dat",
+        "extension": ".dat",
+        "file_size_bytes": 5242880,
+        "is_directory": false,
+        "raw_record_id": "FILE_CREATED|G:\\exfil_06.dat",
+        "scenario_id": "scenario_c",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "created",
+        "src_path": "G:\\exfil_06.dat",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "f4155689ccbddbef6c36650c96607716021baf003c83a93bd8f03bb994618977",
+      "source": "eventlog",
+      "ts_utc": "2026-10-23T15:02:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "CONTOSO\\analyst",
+      "action": "LOG_CLEARED",
+      "entity_type": "process",
+      "entity": "C:\\Windows\\System32\\wevtutil.exe",
+      "details": {
+        "event_record_id": 9484100,
+        "channel": "Security",
+        "event_code": 1102,
+        "process_name": "C:\\Windows\\System32\\wevtutil.exe",
+        "command_line": "wevtutil cl Security",
+        "raw_record_id": "Security:9484100",
+        "scenario_id": "scenario_c",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "Event": {
+          "System": {
+            "Provider": {
+              "Name": "Microsoft-Windows-Eventlog"
+            },
+            "EventID": 1102,
+            "EventRecordID": 9484100,
+            "Channel": "Security",
+            "Computer": "WIN-FORENSIC-01",
+            "TimeCreated": {
+              "SystemTime": "2026-10-23T15:02:00.000Z"
+            }
+          },
+          "UserData": {
+            "LogFileCleared": {
+              "SubjectUserName": "analyst",
+              "SubjectDomainName": "CONTOSO",
+              "Channel": "Security"
+            }
+          }
+        }
+      }
+    },
+    {
+      "event_id": "cea3e56ed059dae80543e474f14f7d3053304f04302fe6a9d502c58854604305",
+      "source": "fs",
+      "ts_utc": "2026-10-23T14:00:00.000Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_MODIFIED",
+      "entity_type": "file",
+      "entity": "G:\\exfil_01.dat",
+      "details": {
+        "drive_letter": "G:",
+        "file_path": "G:\\exfil_01.dat",
+        "file_name": "exfil_01.dat",
+        "extension": ".dat",
+        "file_size_bytes": 5242880,
+        "is_directory": false,
+        "ts_observed_utc": "2026-10-23T15:05:00.000Z",
+        "time_discrepancy_seconds": 3900.0,
+        "raw_record_id": "FILE_MODIFIED|G:\\exfil_01.dat",
+        "scenario_id": "scenario_c",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "modified",
+        "src_path": "G:\\exfil_01.dat",
+        "is_directory": false,
+        "reported_mtime": "2026-10-23T14:00:00.000Z",
+        "observed_time": "2026-10-23T15:05:00.000Z"
+      }
+    }
+  ]
+}
