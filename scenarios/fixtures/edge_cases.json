@@ -13,7 +13,9 @@
       "device_name": "Corsair Voyager",
       "serial_number": "CORSAIR_NO_WRITE_001",
       "edge_case_note": "USB connection without subsequent file write",
-      "raw_record_id": "USBSTOR\\DISK&VEN_CORSAIR\\CORSAIR_NO_WRITE_001"
+      "raw_record_id": "USBSTOR\\DISK&VEN_CORSAIR\\CORSAIR_NO_WRITE_001",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventType": "DBT_DEVICEARRIVAL",
@@ -34,7 +36,9 @@
       "device_name": "SanDisk Cruzer",
       "serial_number": "SANDISK_EXISTING_BIN_002",
       "edge_case_note": "USB arrival followed by process execution without file write event",
-      "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK\\SANDISK_EXISTING_BIN_002"
+      "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK\\SANDISK_EXISTING_BIN_002",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventType": "DBT_DEVICEARRIVAL",
@@ -56,7 +60,9 @@
       "event_code": 4688,
       "process_name": "H:\\tools\\dump_memory.exe",
       "edge_case_note": "Execution from USB without preceding file write event in telemetry",
-      "raw_record_id": "Security:9482500"
+      "raw_record_id": "Security:9482500",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventID": 4688,
@@ -76,7 +82,9 @@
       "drive_letter": "E:",
       "file_path": "E:\\staging\\setup_script.bat",
       "edge_case_note": "File created on E: drive but process started on F: drive",
-      "raw_record_id": "FILE_CREATED|E:\\staging\\setup_script.bat"
+      "raw_record_id": "FILE_CREATED|E:\\staging\\setup_script.bat",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -98,7 +106,9 @@
       "event_code": 4688,
       "process_name": "F:\\staging\\other_binary.exe",
       "edge_case_note": "Mismatched drive letter (F: vs E:) and file name",
-      "raw_record_id": "Security:9482600"
+      "raw_record_id": "Security:9482600",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventID": 4688,
@@ -118,7 +128,9 @@
       "drive_letter": "E:",
       "file_path": "E:\\reports\\duplicate_test.txt",
       "edge_case_note": "Duplicate event occurrence 1 of 2",
-      "raw_record_id": "FILE_CREATED|E:\\reports\\duplicate_test.txt"
+      "raw_record_id": "FILE_CREATED|E:\\reports\\duplicate_test.txt",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -138,7 +150,9 @@
       "drive_letter": "E:",
       "file_path": "E:\\reports\\duplicate_test.txt",
       "edge_case_note": "Duplicate event occurrence 1 of 2",
-      "raw_record_id": "FILE_CREATED|E:\\reports\\duplicate_test.txt"
+      "raw_record_id": "FILE_CREATED|E:\\reports\\duplicate_test.txt",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -158,7 +172,9 @@
       "event_record_id": 9482700,
       "channel": "Security",
       "process_name": "E:\\tools\\reorder_test.exe",
-      "raw_record_id": "Security:9482700"
+      "raw_record_id": "Security:9482700",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "NewProcessName": "E:\\tools\\reorder_test.exe"
@@ -176,7 +192,9 @@
     "details": {
       "drive_letter": "E:",
       "serial_number": "PNY_OUT_OF_ORDER_005",
-      "raw_record_id": "USBSTOR\\DISK&VEN_PNY\\PNY_OUT_OF_ORDER_005"
+      "raw_record_id": "USBSTOR\\DISK&VEN_PNY\\PNY_OUT_OF_ORDER_005",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "DriveLetter": "E:"
@@ -194,7 +212,9 @@
     "details": {
       "drive_letter": "E:",
       "file_path": "E:\\tools\\reorder_test.exe",
-      "raw_record_id": "FILE_CREATED|E:\\tools\\reorder_test.exe"
+      "raw_record_id": "FILE_CREATED|E:\\tools\\reorder_test.exe",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "src_path": "E:\\tools\\reorder_test.exe"
@@ -212,7 +232,9 @@
     "details": {
       "drive_letter": "E:",
       "serial_number": "BOUNDARY_TEST_DRIVE_006",
-      "raw_record_id": "USBSTOR\\DISK&VEN_TEST\\BOUNDARY_TEST_DRIVE_006"
+      "raw_record_id": "USBSTOR\\DISK&VEN_TEST\\BOUNDARY_TEST_DRIVE_006",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "DriveLetter": "E:"
@@ -230,7 +252,9 @@
     "details": {
       "drive_letter": "E:",
       "file_path": "E:\\boundary\\target.exe",
-      "raw_record_id": "FILE_CREATED|E:\\boundary\\target.exe"
+      "raw_record_id": "FILE_CREATED|E:\\boundary\\target.exe",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "src_path": "E:\\boundary\\target.exe"
@@ -250,7 +274,9 @@
       "channel": "Security",
       "process_name": "E:\\boundary\\target.exe",
       "boundary_condition": "just_inside_window_599s",
-      "raw_record_id": "Security:9482801"
+      "raw_record_id": "Security:9482801",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "NewProcessName": "E:\\boundary\\target.exe"
@@ -270,7 +296,9 @@
       "channel": "Security",
       "process_name": "E:\\boundary\\target.exe",
       "boundary_condition": "exactly_on_window_boundary_600s",
-      "raw_record_id": "Security:9482802"
+      "raw_record_id": "Security:9482802",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "NewProcessName": "E:\\boundary\\target.exe"
@@ -290,7 +318,9 @@
       "channel": "Security",
       "process_name": "E:\\boundary\\target.exe",
       "boundary_condition": "just_outside_window_601s",
-      "raw_record_id": "Security:9482803"
+      "raw_record_id": "Security:9482803",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "NewProcessName": "E:\\boundary\\target.exe"
@@ -310,7 +340,9 @@
       "device_name": "Kingston DataTraveler",
       "serial_number": "KINGSTON_BULK_001",
       "edge_case_note": "USB arrival establishing removable drive J: for R4 testing",
-      "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON_BULK_001"
+      "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON_BULK_001",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventType": "DBT_DEVICEARRIVAL",
@@ -333,7 +365,9 @@
       "extension": ".pdf",
       "file_size_bytes": 1024,
       "edge_case_note": "Valid R4 burst file",
-      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_1.pdf"
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_1.pdf",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -356,7 +390,9 @@
       "extension": ".pdf",
       "file_size_bytes": 2048,
       "edge_case_note": "Valid R4 burst file",
-      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_2.pdf"
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_2.pdf",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -379,7 +415,9 @@
       "extension": ".pdf",
       "file_size_bytes": 3072,
       "edge_case_note": "Valid R4 burst file",
-      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_3.pdf"
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_3.pdf",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -402,7 +440,9 @@
       "extension": ".pdf",
       "file_size_bytes": 4096,
       "edge_case_note": "Valid R4 burst file",
-      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_4.pdf"
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_4.pdf",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -425,7 +465,9 @@
       "extension": ".pdf",
       "file_size_bytes": 5120,
       "edge_case_note": "Valid R4 burst file",
-      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_5.pdf"
+      "raw_record_id": "FILE_CREATED|J:\\burst\\doc_5.pdf",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -445,7 +487,9 @@
       "drive_letter": "K:",
       "device_name": "Transcend JetFlash",
       "serial_number": "TRANSCEND_SUB_002",
-      "raw_record_id": "USBSTOR\\DISK&VEN_TRANSCEND\\TRANSCEND_SUB_002"
+      "raw_record_id": "USBSTOR\\DISK&VEN_TRANSCEND\\TRANSCEND_SUB_002",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventType": "DBT_DEVICEARRIVAL",
@@ -467,7 +511,9 @@
       "file_name": "note_1.txt",
       "extension": ".txt",
       "edge_case_note": "Sub-threshold count (2 files < 5 min_count)",
-      "raw_record_id": "FILE_CREATED|K:\\sub\\note_1.txt"
+      "raw_record_id": "FILE_CREATED|K:\\sub\\note_1.txt",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -489,7 +535,9 @@
       "file_name": "note_2.txt",
       "extension": ".txt",
       "edge_case_note": "Sub-threshold count (2 files < 5 min_count)",
-      "raw_record_id": "FILE_CREATED|K:\\sub\\note_2.txt"
+      "raw_record_id": "FILE_CREATED|K:\\sub\\note_2.txt",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -511,7 +559,9 @@
       "event_code": 4688,
       "process_name": "C:\\Windows\\System32\\cmd.exe",
       "edge_case_note": "Target activity preceding log clearing",
-      "raw_record_id": "Security:9482901"
+      "raw_record_id": "Security:9482901",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventID": 4688,
@@ -532,7 +582,9 @@
       "channel": "Security",
       "event_code": 1102,
       "edge_case_note": "Security audit log cleared 45s after cmd.exe execution",
-      "raw_record_id": "Security:9482902"
+      "raw_record_id": "Security:9482902",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventID": 1102,
@@ -553,7 +605,9 @@
       "channel": "System",
       "event_code": 104,
       "edge_case_note": "Isolated log clear on separate host with no nearby activity",
-      "raw_record_id": "System:10401"
+      "raw_record_id": "System:10401",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventID": 104,
@@ -576,7 +630,9 @@
       "ts_observed_utc": "2026-10-23T14:00:00.000Z",
       "mtime_utc": "2026-10-23T13:00:00.000Z",
       "edge_case_note": "Positive R6 timestamp discrepancy (3600s > 120s threshold)",
-      "raw_record_id": "FILE_MODIFIED|E:\\timestomp\\suspicious.dll"
+      "raw_record_id": "FILE_MODIFIED|E:\\timestomp\\suspicious.dll",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "modified",
@@ -599,7 +655,9 @@
       "ts_observed_utc": "2026-10-23T13:05:02.000Z",
       "mtime_utc": "2026-10-23T13:05:00.000Z",
       "edge_case_note": "Normal timestamp alignment (2s <= 120s threshold)",
-      "raw_record_id": "FILE_CREATED|E:\\timestomp\\normal.txt"
+      "raw_record_id": "FILE_CREATED|E:\\timestomp\\normal.txt",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -619,7 +677,9 @@
       "drive_letter": "L:",
       "device_name": "SanDisk Boundary Drive",
       "serial_number": "SANDISK_R7_BOUNDARY_900S",
-      "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK\\SANDISK_R7_BOUNDARY_900S"
+      "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK\\SANDISK_R7_BOUNDARY_900S",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventType": "DBT_DEVICEARRIVAL",
@@ -639,7 +699,9 @@
       "drive_letter": "L:",
       "file_path": "L:\\payloads\\chain_test.exe",
       "file_name": "chain_test.exe",
-      "raw_record_id": "FILE_CREATED|L:\\payloads\\chain_test.exe"
+      "raw_record_id": "FILE_CREATED|L:\\payloads\\chain_test.exe",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -661,7 +723,9 @@
       "event_code": 4688,
       "process_name": "L:\\payloads\\chain_test.exe",
       "edge_case_note": "R7 chain exactly at 900s boundary",
-      "raw_record_id": "Security:9482950"
+      "raw_record_id": "Security:9482950",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventID": 4688,

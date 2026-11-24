@@ -1,0 +1,446 @@
+[
+  {
+    "event_id": "c25e52803343f26e79c0666c43a5bf1963b5bbbbe9628d33e4993a1aa0425d20",
+    "source": "eventlog",
+    "ts_utc": "2026-10-24T08:30:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "LOGON",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\winlogon.exe",
+    "details": {
+      "event_record_id": 9501001,
+      "channel": "Security",
+      "event_code": 4624,
+      "logon_type": 2,
+      "authentication_package": "Negotiate",
+      "raw_record_id": "Security:9501001",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "Event": {
+        "System": {
+          "Provider": {
+            "Name": "Microsoft-Windows-Security-Auditing"
+          },
+          "EventID": 4624,
+          "EventRecordID": 9501001,
+          "Channel": "Security",
+          "Computer": "WIN-FORENSIC-01",
+          "TimeCreated": {
+            "SystemTime": "2026-10-24T08:30:00.000Z"
+          }
+        },
+        "EventData": {
+          "TargetUserName": "analyst",
+          "TargetDomainName": "CONTOSO",
+          "LogonType": 2
+        }
+      }
+    }
+  },
+  {
+    "event_id": "164228d55bcebe3fdd9bfe02d3bccfca6e7802ad94c0727a4ad233e8e898cf8e",
+    "source": "eventlog",
+    "ts_utc": "2026-10-24T08:31:15.200Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "details": {
+      "event_record_id": 9501010,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_id": "0x1b20",
+      "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "parent_process_id": "0x0e20",
+      "parent_process_name": "C:\\Windows\\explorer.exe",
+      "command_line": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"",
+      "raw_record_id": "Security:9501010",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "Event": {
+        "System": {
+          "Provider": {
+            "Name": "Microsoft-Windows-Security-Auditing"
+          },
+          "EventID": 4688,
+          "EventRecordID": 9501010,
+          "Channel": "Security",
+          "Computer": "WIN-FORENSIC-01",
+          "TimeCreated": {
+            "SystemTime": "2026-10-24T08:31:15.200Z"
+          }
+        },
+        "EventData": {
+          "NewProcessName": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "ProcessId": "0x1b20",
+          "CommandLine": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"",
+          "SubjectUserName": "analyst",
+          "SubjectDomainName": "CONTOSO"
+        }
+      }
+    }
+  },
+  {
+    "event_id": "739e204dde6883d8030f838a4734e10597a7157e136e803dd45154637ace7b80",
+    "source": "eventlog",
+    "ts_utc": "2026-10-24T08:32:30.400Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\notepad.exe",
+    "details": {
+      "event_record_id": 9501020,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_id": "0x1c34",
+      "process_name": "C:\\Windows\\System32\\notepad.exe",
+      "parent_process_id": "0x0e20",
+      "parent_process_name": "C:\\Windows\\explorer.exe",
+      "command_line": "\"C:\\Windows\\System32\\notepad.exe\" C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+      "raw_record_id": "Security:9501020",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "Event": {
+        "System": {
+          "Provider": {
+            "Name": "Microsoft-Windows-Security-Auditing"
+          },
+          "EventID": 4688,
+          "EventRecordID": 9501020,
+          "Channel": "Security",
+          "Computer": "WIN-FORENSIC-01",
+          "TimeCreated": {
+            "SystemTime": "2026-10-24T08:32:30.400Z"
+          }
+        },
+        "EventData": {
+          "NewProcessName": "C:\\Windows\\System32\\notepad.exe",
+          "ProcessId": "0x1c34",
+          "CommandLine": "\"C:\\Windows\\System32\\notepad.exe\" C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+          "SubjectUserName": "analyst",
+          "SubjectDomainName": "CONTOSO"
+        }
+      }
+    }
+  },
+  {
+    "event_id": "b4fd9b518b3bfd7a63f466d952718570278974efd0e57535eba45306985b69a8",
+    "source": "fs",
+    "ts_utc": "2026-10-24T08:33:05.100Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+    "details": {
+      "file_path": "C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+      "file_name": "daily_tasks.txt",
+      "extension": ".txt",
+      "file_size_bytes": 512,
+      "is_directory": false,
+      "raw_record_id": "FILE_CREATED|C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+      "is_directory": false
+    }
+  },
+  {
+    "event_id": "41fce52e7bec4e3c9c72cc3916347ac9242175a912f691d182c10dbc5a4e40f4",
+    "source": "fs",
+    "ts_utc": "2026-10-24T08:34:10.500Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_MODIFIED",
+    "entity_type": "file",
+    "entity": "C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+    "details": {
+      "file_path": "C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+      "file_name": "daily_tasks.txt",
+      "extension": ".txt",
+      "file_size_bytes": 1024,
+      "is_directory": false,
+      "raw_record_id": "FILE_MODIFIED|C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "event_type": "modified",
+      "src_path": "C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+      "is_directory": false
+    }
+  },
+  {
+    "event_id": "6525d52cbcb7f4882ac154763ba203806c019f338205a47109c36f7daaa72b4d",
+    "source": "usb",
+    "ts_utc": "2026-10-24T08:35:20.100Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "F: (Kingston DataTraveler AA00000000000456)",
+    "details": {
+      "drive_letter": "F:",
+      "device_name": "Kingston DataTraveler",
+      "serial_number": "AA00000000000456",
+      "vendor_id": "0951",
+      "product_id": "1666",
+      "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON&PROD_DATATRAVELER\\AA00000000000456",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEARRIVAL",
+      "DriveLetter": "F:",
+      "FriendlyName": "Kingston DataTraveler USB Device"
+    }
+  },
+  {
+    "event_id": "22ff4bbc6c574c77f8c15348a5864cc930a9fa570e3b2b7e45fd955457e517f2",
+    "source": "fs",
+    "ts_utc": "2026-10-24T08:36:00.300Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "F:\\client_presentation.pdf",
+    "details": {
+      "drive_letter": "F:",
+      "file_path": "F:\\client_presentation.pdf",
+      "file_name": "client_presentation.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 1048576,
+      "is_directory": false,
+      "raw_record_id": "FILE_CREATED|F:\\client_presentation.pdf",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "event_type": "created",
+      "src_path": "F:\\client_presentation.pdf",
+      "is_directory": false
+    }
+  },
+  {
+    "event_id": "596d219ac3f4be30f51eb72fe0d8a7f3d3780cc42169f3651c7728fc0dae4347",
+    "source": "fs",
+    "ts_utc": "2026-10-24T08:36:05.800Z",
+    "host": "WIN-FORENSIC-01",
+    "user": null,
+    "action": "FILE_MODIFIED",
+    "entity_type": "file",
+    "entity": "F:\\client_presentation.pdf",
+    "details": {
+      "drive_letter": "F:",
+      "file_path": "F:\\client_presentation.pdf",
+      "file_name": "client_presentation.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 1048576,
+      "is_directory": false,
+      "raw_record_id": "FILE_MODIFIED|F:\\client_presentation.pdf",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "event_type": "modified",
+      "src_path": "F:\\client_presentation.pdf",
+      "is_directory": false
+    }
+  },
+  {
+    "event_id": "6a50f3a1e1be4c95883fd1561182a4a4d160cbd1df6c9822a899bd9a8c5433d7",
+    "source": "eventlog",
+    "ts_utc": "2026-10-24T08:37:12.600Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe",
+    "details": {
+      "event_record_id": 9501045,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_id": "0x1d40",
+      "process_name": "C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe",
+      "parent_process_id": "0x0e20",
+      "parent_process_name": "C:\\Windows\\explorer.exe",
+      "command_line": "\"C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe\" \"F:\\client_presentation.pdf\"",
+      "raw_record_id": "Security:9501045",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "Event": {
+        "System": {
+          "Provider": {
+            "Name": "Microsoft-Windows-Security-Auditing"
+          },
+          "EventID": 4688,
+          "EventRecordID": 9501045,
+          "Channel": "Security",
+          "Computer": "WIN-FORENSIC-01",
+          "TimeCreated": {
+            "SystemTime": "2026-10-24T08:37:12.600Z"
+          }
+        },
+        "EventData": {
+          "NewProcessName": "C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe",
+          "ProcessId": "0x1d40",
+          "CommandLine": "\"C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe\" \"F:\\client_presentation.pdf\"",
+          "SubjectUserName": "analyst",
+          "SubjectDomainName": "CONTOSO"
+        }
+      }
+    }
+  },
+  {
+    "event_id": "73f9e868821512f140310885a781fae8094999068f91b872a9ee9e4128987e50",
+    "source": "usb",
+    "ts_utc": "2026-10-24T08:40:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "DEVICE_REMOVED",
+    "entity_type": "device",
+    "entity": "F: (Kingston DataTraveler AA00000000000456)",
+    "details": {
+      "drive_letter": "F:",
+      "device_name": "Kingston DataTraveler",
+      "serial_number": "AA00000000000456",
+      "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON&PROD_DATATRAVELER\\AA00000000000456",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEREMOVECOMPLETE",
+      "DriveLetter": "F:"
+    }
+  },
+  {
+    "event_id": "b599213b0c62100a5ddd4fc34cc9acbfe2e3f604734d4a8c282006a007109eec",
+    "source": "eventlog",
+    "ts_utc": "2026-10-24T08:42:15.300Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "CONTOSO\\analyst",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\calc.exe",
+    "details": {
+      "event_record_id": 9501060,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_id": "0x1e50",
+      "process_name": "C:\\Windows\\System32\\calc.exe",
+      "parent_process_id": "0x0e20",
+      "parent_process_name": "C:\\Windows\\explorer.exe",
+      "command_line": "\"C:\\Windows\\System32\\calc.exe\"",
+      "raw_record_id": "Security:9501060",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "Event": {
+        "System": {
+          "Provider": {
+            "Name": "Microsoft-Windows-Security-Auditing"
+          },
+          "EventID": 4688,
+          "EventRecordID": 9501060,
+          "Channel": "Security",
+          "Computer": "WIN-FORENSIC-01",
+          "TimeCreated": {
+            "SystemTime": "2026-10-24T08:42:15.300Z"
+          }
+        },
+        "EventData": {
+          "NewProcessName": "C:\\Windows\\System32\\calc.exe",
+          "ProcessId": "0x1e50",
+          "CommandLine": "\"C:\\Windows\\System32\\calc.exe\"",
+          "SubjectUserName": "analyst",
+          "SubjectDomainName": "CONTOSO"
+        }
+      }
+    }
+  },
+  {
+    "event_id": "23902372f5c16b1bd20b3f7cf0bab98d7218796ac47eb699d81a964cb79a7aa2",
+    "source": "eventlog",
+    "ts_utc": "2026-10-24T08:45:00.000Z",
+    "host": "WIN-FORENSIC-01",
+    "user": "SYSTEM",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\taskhostw.exe",
+    "details": {
+      "event_record_id": 9501070,
+      "channel": "Security",
+      "event_code": 4688,
+      "process_id": "0x1f60",
+      "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+      "parent_process_id": "0x0280",
+      "parent_process_name": "C:\\Windows\\System32\\services.exe",
+      "command_line": "\"C:\\Windows\\System32\\taskhostw.exe\" {222A245B-E637-4AE9-A93F-A2408C012C6B}",
+      "raw_record_id": "Security:9501070",
+      "session_id": "synthetic_session_normal_01",
+      "is_synthetic": true,
+      "dataset_type": "synthetic",
+      "label": "normal"
+    },
+    "raw": {
+      "Event": {
+        "System": {
+          "Provider": {
+            "Name": "Microsoft-Windows-Security-Auditing"
+          },
+          "EventID": 4688,
+          "EventRecordID": 9501070,
+          "Channel": "Security",
+          "Computer": "WIN-FORENSIC-01",
+          "TimeCreated": {
+            "SystemTime": "2026-10-24T08:45:00.000Z"
+          }
+        },
+        "EventData": {
+          "NewProcessName": "C:\\Windows\\System32\\taskhostw.exe",
+          "ProcessId": "0x1f60",
+          "CommandLine": "\"C:\\Windows\\System32\\taskhostw.exe\" {222A245B-E637-4AE9-A93F-A2408C012C6B}",
+          "SubjectUserName": "SYSTEM",
+          "SubjectDomainName": "NT AUTHORITY"
+        }
+      }
+    }
+  }
+]

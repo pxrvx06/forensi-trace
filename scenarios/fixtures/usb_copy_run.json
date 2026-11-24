@@ -14,7 +14,9 @@
       "serial_number": "4C53000123456789",
       "vendor_id": "0781",
       "product_id": "5581",
-      "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK&PROD_ULTRA\\4C53000123456789"
+      "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK&PROD_ULTRA\\4C53000123456789",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "DeviceInstanceId": "USBSTOR\\DISK&VEN_SANDISK&PROD_ULTRA\\4C53000123456789&0",
@@ -40,7 +42,9 @@
       "extension": ".exe",
       "file_size_bytes": 65536,
       "is_directory": false,
-      "raw_record_id": "FILE_CREATED|E:\\reports\\payload.exe"
+      "raw_record_id": "FILE_CREATED|E:\\reports\\payload.exe",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -66,7 +70,9 @@
       "parent_process_id": "0x0e20",
       "parent_process_name": "C:\\Windows\\explorer.exe",
       "command_line": "\"E:\\reports\\payload.exe\" --silent",
-      "raw_record_id": "Security:9482104"
+      "raw_record_id": "Security:9482104",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "Event": {

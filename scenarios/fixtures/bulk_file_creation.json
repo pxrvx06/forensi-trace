@@ -12,7 +12,9 @@
       "drive_letter": "F:",
       "device_name": "Corsair Flash Survivor",
       "serial_number": "CORSAIR_BULK_7701",
-      "raw_record_id": "USBSTOR\\DISK&VEN_CORSAIR\\CORSAIR_BULK_7701"
+      "raw_record_id": "USBSTOR\\DISK&VEN_CORSAIR\\CORSAIR_BULK_7701",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventType": "DBT_DEVICEARRIVAL",
@@ -34,7 +36,9 @@
       "file_name": "data_1.csv",
       "extension": ".csv",
       "file_size_bytes": 2048,
-      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_1.csv"
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_1.csv",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -56,7 +60,9 @@
       "file_name": "data_2.csv",
       "extension": ".csv",
       "file_size_bytes": 4096,
-      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_2.csv"
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_2.csv",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -78,7 +84,9 @@
       "file_name": "data_3.csv",
       "extension": ".csv",
       "file_size_bytes": 6144,
-      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_3.csv"
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_3.csv",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -100,7 +108,9 @@
       "file_name": "data_4.csv",
       "extension": ".csv",
       "file_size_bytes": 8192,
-      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_4.csv"
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_4.csv",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -122,7 +132,9 @@
       "file_name": "data_5.csv",
       "extension": ".csv",
       "file_size_bytes": 10240,
-      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_5.csv"
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_5.csv",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -144,7 +156,9 @@
       "file_name": "data_6.csv",
       "extension": ".csv",
       "file_size_bytes": 12288,
-      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_6.csv"
+      "raw_record_id": "FILE_CREATED|F:\\exfil\\data_6.csv",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",

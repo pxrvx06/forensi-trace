@@ -12,7 +12,9 @@
       "drive_letter": "C:",
       "file_path": "C:\\temp\\staging_script.ps1",
       "file_name": "staging_script.ps1",
-      "raw_record_id": "FILE_CREATED|C:\\temp\\staging_script.ps1"
+      "raw_record_id": "FILE_CREATED|C:\\temp\\staging_script.ps1",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -34,7 +36,9 @@
       "event_code": 4688,
       "process_name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
       "command_line": "powershell.exe -ExecutionPolicy Bypass -File C:\\temp\\staging_script.ps1",
-      "raw_record_id": "Security:9483010"
+      "raw_record_id": "Security:9483010",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventID": 4688,
@@ -54,7 +58,9 @@
       "event_record_id": 9483011,
       "channel": "Security",
       "event_code": 1102,
-      "raw_record_id": "Security:9483011"
+      "raw_record_id": "Security:9483011",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "EventID": 1102,

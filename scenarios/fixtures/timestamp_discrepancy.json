@@ -14,7 +14,9 @@
       "file_name": "forged_driver.sys",
       "mtime_utc": "2025-01-15T08:00:00.000Z",
       "ts_observed_utc": "2026-10-23T16:00:00.000Z",
-      "raw_record_id": "FILE_CREATED|E:\\tools\\forged_driver.sys"
+      "raw_record_id": "FILE_CREATED|E:\\tools\\forged_driver.sys",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",

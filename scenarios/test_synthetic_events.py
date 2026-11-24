@@ -64,7 +64,7 @@ class TestSyntheticEventGenerator(unittest.TestCase):
     # 1. Generator Execution and JSON Parsing
     # --------------------------------------------------------------------------
     def test_01_generator_runs_and_fixtures_exist(self):
-        """Verify generator creates all four fixture files with valid JSON."""
+        """Verify generator creates all fixture files with valid JSON."""
         expected_files = [
             "usb_copy_run.json",
             "normal_noise.json",
@@ -72,6 +72,7 @@ class TestSyntheticEventGenerator(unittest.TestCase):
             "bulk_file_creation.json",
             "log_cleared.json",
             "timestamp_discrepancy.json",
+            "synthetic_normal.json",
             "invalid_events.json",
         ]
         for filename in expected_files:
@@ -94,6 +95,7 @@ class TestSyntheticEventGenerator(unittest.TestCase):
             "bulk_file_creation.json",
             "log_cleared.json",
             "timestamp_discrepancy.json",
+            "synthetic_normal.json",
         ]
         for filename in valid_files:
             file_path = FIXTURES_DIR / filename
@@ -301,6 +303,7 @@ class TestSyntheticEventGenerator(unittest.TestCase):
                 "bulk_file_creation.json",
                 "log_cleared.json",
                 "timestamp_discrepancy.json",
+                "synthetic_normal.json",
                 "invalid_events.json",
             ]:
                 file_a = (FIXTURES_DIR / filename).read_bytes()
@@ -345,6 +348,69 @@ class TestSyntheticEventGenerator(unittest.TestCase):
                     expected_err.lower() in combined_errors or "validation" in combined_errors,
                     f"Case '{name}' error messages '{errors}' did not contain expected hint '{expected_err}'",
                 )
+
+    # --------------------------------------------------------------------------
+    # 9. Phase 3 Step 2: Synthetic Labeling & Separation Verification
+    # --------------------------------------------------------------------------
+    def test_09_synthetic_labeling_and_separation(self):
+        """
+        Verify:
+        1. All valid synthetic fixtures have details.is_synthetic is True and details.dataset_type == 'synthetic'.
+        2. synthetic_normal.json contains routine workstation telemetry labeled 'normal' with session ID.
+        3. Real baseline recordings in scenarios/baseline/ are strictly separated and do not carry is_synthetic: True.
+        """
+        valid_synthetic_files = [
+            "usb_copy_run.json",
+            "normal_noise.json",
+            "edge_cases.json",
+            "bulk_file_creation.json",
+            "log_cleared.json",
+            "timestamp_discrepancy.json",
+            "synthetic_normal.json",
+        ]
+
+        # 1. Check all valid synthetic fixtures have explicit is_synthetic: True
+        for fname in valid_synthetic_files:
+            file_path = FIXTURES_DIR / fname
+            with open(file_path, "r", encoding="utf-8") as f:
+                events = json.load(f)
+            for idx, ev in enumerate(events):
+                details = ev.get("details", {})
+                self.assertTrue(
+                    details.get("is_synthetic") is True,
+                    f"{fname}[{idx}] must have details.is_synthetic == True",
+                )
+                self.assertEqual(
+                    details.get("dataset_type"),
+                    "synthetic",
+                    f"{fname}[{idx}] must have details.dataset_type == 'synthetic'",
+                )
+
+        # 2. Check synthetic_normal.json specifically
+        synth_normal_path = FIXTURES_DIR / "synthetic_normal.json"
+        self.assertTrue(synth_normal_path.exists())
+        with open(synth_normal_path, "r", encoding="utf-8") as f:
+            synth_events = json.load(f)
+        self.assertGreaterEqual(len(synth_events), 10, "synthetic_normal.json must have at least 10 events")
+        for ev in synth_events:
+            self.assertEqual(ev["details"].get("label"), "normal")
+            self.assertEqual(ev["details"].get("session_id"), "synthetic_session_normal_01")
+
+        # 3. Check real baseline separation
+        baseline_dir = REPO_ROOT / "scenarios" / "baseline"
+        if baseline_dir.exists():
+            baseline_files = list(baseline_dir.glob("baseline_session_*.json"))
+            self.assertGreater(len(baseline_files), 0, "Real baseline sessions must exist")
+            for bfile in baseline_files:
+                with open(bfile, "r", encoding="utf-8") as f:
+                    b_events = json.load(f)
+                for b_ev in b_events:
+                    b_details = b_ev.get("details", {})
+                    self.assertNotEqual(
+                        b_details.get("is_synthetic"),
+                        True,
+                        f"Real baseline file {bfile.name} must NOT be marked is_synthetic=True",
+                    )
 
 
 if __name__ == "__main__":

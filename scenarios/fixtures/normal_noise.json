@@ -14,7 +14,9 @@
       "event_code": 4624,
       "logon_type": 2,
       "authentication_package": "Negotiate",
-      "raw_record_id": "Security:9481900"
+      "raw_record_id": "Security:9481900",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "Event": {
@@ -56,7 +58,9 @@
       "parent_process_id": "0x0e20",
       "parent_process_name": "C:\\Windows\\explorer.exe",
       "command_line": "\"C:\\Windows\\System32\\notepad.exe\"",
-      "raw_record_id": "Security:9481920"
+      "raw_record_id": "Security:9481920",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "process_created",
@@ -79,7 +83,9 @@
       "extension": ".txt",
       "file_size_bytes": 1024,
       "is_directory": false,
-      "raw_record_id": "FILE_CREATED|C:\\Users\\analyst\\Documents\\forensics_notes.txt"
+      "raw_record_id": "FILE_CREATED|C:\\Users\\analyst\\Documents\\forensics_notes.txt",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -102,7 +108,9 @@
       "extension": ".txt",
       "file_size_bytes": 2048,
       "is_directory": false,
-      "raw_record_id": "FILE_MODIFIED|C:\\Users\\analyst\\Documents\\forensics_notes.txt"
+      "raw_record_id": "FILE_MODIFIED|C:\\Users\\analyst\\Documents\\forensics_notes.txt",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "modified",
@@ -127,7 +135,9 @@
       "parent_process_id": "0x0e20",
       "parent_process_name": "C:\\Windows\\explorer.exe",
       "command_line": "\"chrome.exe\" https://forensics.internal",
-      "raw_record_id": "Security:9481955"
+      "raw_record_id": "Security:9481955",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "process_created",
@@ -149,7 +159,9 @@
       "serial_number": "KINGSTON9988776655",
       "vendor_id": "0951",
       "product_id": "1666",
-      "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON9988776655"
+      "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON9988776655",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "DeviceInstanceId": "USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON9988776655",
@@ -175,7 +187,9 @@
       "extension": ".pdf",
       "file_size_bytes": 1048576,
       "is_directory": false,
-      "raw_record_id": "FILE_CREATED|F:\\backup\\project_status.pdf"
+      "raw_record_id": "FILE_CREATED|F:\\backup\\project_status.pdf",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "created",
@@ -200,7 +214,9 @@
       "parent_process_id": "0x0e20",
       "parent_process_name": "C:\\Windows\\explorer.exe",
       "command_line": "\"Acrobat.exe\" \"F:\\backup\\project_status.pdf\"",
-      "raw_record_id": "Security:9481980"
+      "raw_record_id": "Security:9481980",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "event_type": "process_created",
@@ -220,7 +236,9 @@
       "drive_letter": "F:",
       "device_name": "Kingston DataTraveler",
       "serial_number": "KINGSTON9988776655",
-      "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON9988776655_REMOVE"
+      "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON9988776655_REMOVE",
+      "is_synthetic": true,
+      "dataset_type": "synthetic"
     },
     "raw": {
       "DeviceInstanceId": "USBSTOR\\DISK&VEN_KINGSTON\\KINGSTON9988776655",
