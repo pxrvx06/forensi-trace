@@ -13,7 +13,9 @@
       "details": {
         "drive_letter": "E:",
         "serial_number": "TEST1234",
-        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234",
+        "is_synthetic": true,
+        "dataset_type": "synthetic"
       },
       "raw": {
         "DriveLetter": "E:"
@@ -35,7 +37,9 @@
       "details": {
         "drive_letter": "E:",
         "serial_number": "TEST1234",
-        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234",
+        "is_synthetic": true,
+        "dataset_type": "synthetic"
       },
       "raw": {
         "DriveLetter": "E:"
@@ -57,7 +61,9 @@
       "details": {
         "drive_letter": "E:",
         "serial_number": "TEST1234",
-        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234",
+        "is_synthetic": true,
+        "dataset_type": "synthetic"
       },
       "raw": {
         "DriveLetter": "E:"
@@ -79,7 +85,9 @@
       "details": {
         "drive_letter": "E:",
         "serial_number": "TEST1234",
-        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234",
+        "is_synthetic": true,
+        "dataset_type": "synthetic"
       },
       "raw": {
         "DriveLetter": "E:"
@@ -101,7 +109,9 @@
       "details": {
         "drive_letter": "E:",
         "serial_number": "TEST1234",
-        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234",
+        "is_synthetic": true,
+        "dataset_type": "synthetic"
       },
       "raw": {
         "DriveLetter": "E:"
@@ -123,7 +133,9 @@
       "details": {
         "drive_letter": "E:",
         "serial_number": "TEST1234",
-        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234",
+        "is_synthetic": true,
+        "dataset_type": "synthetic"
       },
       "raw": {
         "DriveLetter": "E:"
@@ -145,7 +157,9 @@
       "details": {
         "drive_letter": "E:",
         "serial_number": "TEST1234",
-        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234",
+        "is_synthetic": true,
+        "dataset_type": "synthetic"
       },
       "raw": {
         "DriveLetter": "E:"
@@ -187,7 +201,9 @@
       "details": {
         "drive_letter": "E:",
         "serial_number": "TEST1234",
-        "raw_record_id": "USBSTOR\\DISK\\TEST1234"
+        "raw_record_id": "USBSTOR\\DISK\\TEST1234",
+        "is_synthetic": true,
+        "dataset_type": "synthetic"
       },
       "raw": null
     }

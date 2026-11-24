@@ -81,9 +81,13 @@ def make_event(
         else:
             raw_record_id = f"{source}:{action}:{entity}"
 
-    # Ensure details has raw_record_id
+    # Ensure details has raw_record_id and synthetic labeling (Phase 3 Step 2)
     event_details = dict(details)
     event_details["raw_record_id"] = raw_record_id
+    if "is_synthetic" not in event_details:
+        event_details["is_synthetic"] = True
+    if "dataset_type" not in event_details:
+        event_details["dataset_type"] = "synthetic" 
 
     # Compute deterministic event_id
     event_id = compute_event_id(source, raw_record_id, ts_utc)
@@ -1191,6 +1195,475 @@ def generate_invalid_events() -> list[dict[str, Any]]:
 # ==============================================================================
 # Fixture Writing & Verification Orchestrator
 # ==============================================================================
+
+
+# ==============================================================================
+# Phase 3 Step 2: Labeled Synthetic Normal Workstation Events
+# ==============================================================================
+def generate_synthetic_normal(
+    host: str = "WIN-FORENSIC-01",
+    user: str = "CONTOSO\\analyst",
+) -> list[dict[str, Any]]:
+    """
+    Phase 3 Step 2: Generates labeled synthetic normal workstation telemetry.
+    All events are explicitly labeled with is_synthetic=True and dataset_type='synthetic'.
+    Simulates routine user productivity:
+    1. User logon (Event 4624)
+    2. Chrome browser navigation and renderer sub-processes
+    3. Document authoring in Notepad
+    4. Benign USB stick arrival, copying document, reading, and safe removal
+    5. Benign system utilities (calc.exe, taskhostw.exe)
+    Kept in scenarios/fixtures/ to remain strictly separated from real baseline recordings.
+    """
+    domain, username = user.split("\\") if "\\" in user else ("", user)
+    events: list[dict[str, Any]] = []
+    session_id = "synthetic_session_normal_01"
+
+    # 1. User Logon
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-24T08:30:00.000Z",
+            host=host,
+            user=user,
+            action="LOGON",
+            entity_type="process",
+            entity="C:\\Windows\\System32\\winlogon.exe",
+            details={
+                "event_record_id": 9501001,
+                "channel": "Security",
+                "event_code": 4624,
+                "logon_type": 2,
+                "authentication_package": "Negotiate",
+                "raw_record_id": "Security:9501001",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={
+                "Event": {
+                    "System": {
+                        "Provider": {"Name": "Microsoft-Windows-Security-Auditing"},
+                        "EventID": 4624,
+                        "EventRecordID": 9501001,
+                        "Channel": "Security",
+                        "Computer": host,
+                        "TimeCreated": {"SystemTime": "2026-10-24T08:30:00.000Z"},
+                    },
+                    "EventData": {"TargetUserName": username, "TargetDomainName": domain, "LogonType": 2},
+                }
+            },
+            raw_record_id="Security:9501001",
+        )
+    )
+
+    # 2. Chrome browser launch
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-24T08:31:15.200Z",
+            host=host,
+            user=user,
+            action="PROCESS_STARTED",
+            entity_type="process",
+            entity="C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            details={
+                "event_record_id": 9501010,
+                "channel": "Security",
+                "event_code": 4688,
+                "process_id": "0x1b20",
+                "process_name": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                "parent_process_id": "0x0e20",
+                "parent_process_name": "C:\\Windows\\explorer.exe",
+                "command_line": '"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"',
+                "raw_record_id": "Security:9501010",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={
+                "Event": {
+                    "System": {
+                        "Provider": {"Name": "Microsoft-Windows-Security-Auditing"},
+                        "EventID": 4688,
+                        "EventRecordID": 9501010,
+                        "Channel": "Security",
+                        "Computer": host,
+                        "TimeCreated": {"SystemTime": "2026-10-24T08:31:15.200Z"},
+                    },
+                    "EventData": {
+                        "NewProcessName": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                        "ProcessId": "0x1b20",
+                        "CommandLine": '"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"',
+                        "SubjectUserName": username,
+                        "SubjectDomainName": domain,
+                    },
+                }
+            },
+            raw_record_id="Security:9501010",
+        )
+    )
+
+    # 3. Notepad editor launch
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-24T08:32:30.400Z",
+            host=host,
+            user=user,
+            action="PROCESS_STARTED",
+            entity_type="process",
+            entity="C:\\Windows\\System32\\notepad.exe",
+            details={
+                "event_record_id": 9501020,
+                "channel": "Security",
+                "event_code": 4688,
+                "process_id": "0x1c34",
+                "process_name": "C:\\Windows\\System32\\notepad.exe",
+                "parent_process_id": "0x0e20",
+                "parent_process_name": "C:\\Windows\\explorer.exe",
+                "command_line": '"C:\\Windows\\System32\\notepad.exe" C:\\Users\\analyst\\Documents\\daily_tasks.txt',
+                "raw_record_id": "Security:9501020",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={
+                "Event": {
+                    "System": {
+                        "Provider": {"Name": "Microsoft-Windows-Security-Auditing"},
+                        "EventID": 4688,
+                        "EventRecordID": 9501020,
+                        "Channel": "Security",
+                        "Computer": host,
+                        "TimeCreated": {"SystemTime": "2026-10-24T08:32:30.400Z"},
+                    },
+                    "EventData": {
+                        "NewProcessName": "C:\\Windows\\System32\\notepad.exe",
+                        "ProcessId": "0x1c34",
+                        "CommandLine": '"C:\\Windows\\System32\\notepad.exe" C:\\Users\\analyst\\Documents\\daily_tasks.txt',
+                        "SubjectUserName": username,
+                        "SubjectDomainName": domain,
+                    },
+                }
+            },
+            raw_record_id="Security:9501020",
+        )
+    )
+
+    # 4. File created locally (daily_tasks.txt)
+    events.append(
+        make_event(
+            source="fs",
+            ts_utc="2026-10-24T08:33:05.100Z",
+            host=host,
+            user=None,
+            action="FILE_CREATED",
+            entity_type="file",
+            entity="C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+            details={
+                "file_path": "C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+                "file_name": "daily_tasks.txt",
+                "extension": ".txt",
+                "file_size_bytes": 512,
+                "is_directory": False,
+                "raw_record_id": "FILE_CREATED|C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={"event_type": "created", "src_path": "C:\\Users\\analyst\\Documents\\daily_tasks.txt", "is_directory": False},
+            raw_record_id="FILE_CREATED|C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+        )
+    )
+
+    # 5. File modified locally
+    events.append(
+        make_event(
+            source="fs",
+            ts_utc="2026-10-24T08:34:10.500Z",
+            host=host,
+            user=None,
+            action="FILE_MODIFIED",
+            entity_type="file",
+            entity="C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+            details={
+                "file_path": "C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+                "file_name": "daily_tasks.txt",
+                "extension": ".txt",
+                "file_size_bytes": 1024,
+                "is_directory": False,
+                "raw_record_id": "FILE_MODIFIED|C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={"event_type": "modified", "src_path": "C:\\Users\\analyst\\Documents\\daily_tasks.txt", "is_directory": False},
+            raw_record_id="FILE_MODIFIED|C:\\Users\\analyst\\Documents\\daily_tasks.txt",
+        )
+    )
+
+    # 6. Benign USB arrival (Kingston DataTraveler on F:)
+    device_inst = "USBSTOR\\DISK&VEN_KINGSTON&PROD_DATATRAVELER\\AA00000000000456"
+    events.append(
+        make_event(
+            source="usb",
+            ts_utc="2026-10-24T08:35:20.100Z",
+            host=host,
+            user="SYSTEM",
+            action="DEVICE_ARRIVED",
+            entity_type="device",
+            entity="F: (Kingston DataTraveler AA00000000000456)",
+            details={
+                "drive_letter": "F:",
+                "device_name": "Kingston DataTraveler",
+                "serial_number": "AA00000000000456",
+                "vendor_id": "0951",
+                "product_id": "1666",
+                "raw_record_id": device_inst,
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={"EventType": "DBT_DEVICEARRIVAL", "DriveLetter": "F:", "FriendlyName": "Kingston DataTraveler USB Device"},
+            raw_record_id=device_inst,
+        )
+    )
+
+    # 7. Benign non-executable document copied to USB (client_presentation.pdf)
+    events.append(
+        make_event(
+            source="fs",
+            ts_utc="2026-10-24T08:36:00.300Z",
+            host=host,
+            user=None,
+            action="FILE_CREATED",
+            entity_type="file",
+            entity="F:\\client_presentation.pdf",
+            details={
+                "drive_letter": "F:",
+                "file_path": "F:\\client_presentation.pdf",
+                "file_name": "client_presentation.pdf",
+                "extension": ".pdf",
+                "file_size_bytes": 1048576,
+                "is_directory": False,
+                "raw_record_id": "FILE_CREATED|F:\\client_presentation.pdf",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={"event_type": "created", "src_path": "F:\\client_presentation.pdf", "is_directory": False},
+            raw_record_id="FILE_CREATED|F:\\client_presentation.pdf",
+        )
+    )
+
+    # 8. Document modification on USB
+    events.append(
+        make_event(
+            source="fs",
+            ts_utc="2026-10-24T08:36:05.800Z",
+            host=host,
+            user=None,
+            action="FILE_MODIFIED",
+            entity_type="file",
+            entity="F:\\client_presentation.pdf",
+            details={
+                "drive_letter": "F:",
+                "file_path": "F:\\client_presentation.pdf",
+                "file_name": "client_presentation.pdf",
+                "extension": ".pdf",
+                "file_size_bytes": 1048576,
+                "is_directory": False,
+                "raw_record_id": "FILE_MODIFIED|F:\\client_presentation.pdf",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={"event_type": "modified", "src_path": "F:\\client_presentation.pdf", "is_directory": False},
+            raw_record_id="FILE_MODIFIED|F:\\client_presentation.pdf",
+        )
+    )
+
+    # 9. Adobe Acrobat reader launch viewing the PDF
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-24T08:37:12.600Z",
+            host=host,
+            user=user,
+            action="PROCESS_STARTED",
+            entity_type="process",
+            entity="C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe",
+            details={
+                "event_record_id": 9501045,
+                "channel": "Security",
+                "event_code": 4688,
+                "process_id": "0x1d40",
+                "process_name": "C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe",
+                "parent_process_id": "0x0e20",
+                "parent_process_name": "C:\\Windows\\explorer.exe",
+                "command_line": '"C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe" "F:\\client_presentation.pdf"',
+                "raw_record_id": "Security:9501045",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={
+                "Event": {
+                    "System": {
+                        "Provider": {"Name": "Microsoft-Windows-Security-Auditing"},
+                        "EventID": 4688,
+                        "EventRecordID": 9501045,
+                        "Channel": "Security",
+                        "Computer": host,
+                        "TimeCreated": {"SystemTime": "2026-10-24T08:37:12.600Z"},
+                    },
+                    "EventData": {
+                        "NewProcessName": "C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe",
+                        "ProcessId": "0x1d40",
+                        "CommandLine": '"C:\\Program Files\\Adobe\\Acrobat DC\\Acrobat\\AcroRd32.exe" "F:\\client_presentation.pdf"',
+                        "SubjectUserName": username,
+                        "SubjectDomainName": domain,
+                    },
+                }
+            },
+            raw_record_id="Security:9501045",
+        )
+    )
+
+    # 10. USB drive safely removed
+    events.append(
+        make_event(
+            source="usb",
+            ts_utc="2026-10-24T08:40:00.000Z",
+            host=host,
+            user="SYSTEM",
+            action="DEVICE_REMOVED",
+            entity_type="device",
+            entity="F: (Kingston DataTraveler AA00000000000456)",
+            details={
+                "drive_letter": "F:",
+                "device_name": "Kingston DataTraveler",
+                "serial_number": "AA00000000000456",
+                "raw_record_id": device_inst,
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={"EventType": "DBT_DEVICEREMOVECOMPLETE", "DriveLetter": "F:"},
+            raw_record_id=device_inst,
+        )
+    )
+
+    # 11. Calculator launch
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-24T08:42:15.300Z",
+            host=host,
+            user=user,
+            action="PROCESS_STARTED",
+            entity_type="process",
+            entity="C:\\Windows\\System32\\calc.exe",
+            details={
+                "event_record_id": 9501060,
+                "channel": "Security",
+                "event_code": 4688,
+                "process_id": "0x1e50",
+                "process_name": "C:\\Windows\\System32\\calc.exe",
+                "parent_process_id": "0x0e20",
+                "parent_process_name": "C:\\Windows\\explorer.exe",
+                "command_line": '"C:\\Windows\\System32\\calc.exe"',
+                "raw_record_id": "Security:9501060",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={
+                "Event": {
+                    "System": {
+                        "Provider": {"Name": "Microsoft-Windows-Security-Auditing"},
+                        "EventID": 4688,
+                        "EventRecordID": 9501060,
+                        "Channel": "Security",
+                        "Computer": host,
+                        "TimeCreated": {"SystemTime": "2026-10-24T08:42:15.300Z"},
+                    },
+                    "EventData": {
+                        "NewProcessName": "C:\\Windows\\System32\\calc.exe",
+                        "ProcessId": "0x1e50",
+                        "CommandLine": '"C:\\Windows\\System32\\calc.exe"',
+                        "SubjectUserName": username,
+                        "SubjectDomainName": domain,
+                    },
+                }
+            },
+            raw_record_id="Security:9501060",
+        )
+    )
+
+    # 12. Windows background maintenance taskhost
+    events.append(
+        make_event(
+            source="eventlog",
+            ts_utc="2026-10-24T08:45:00.000Z",
+            host=host,
+            user="SYSTEM",
+            action="PROCESS_STARTED",
+            entity_type="process",
+            entity="C:\\Windows\\System32\\taskhostw.exe",
+            details={
+                "event_record_id": 9501070,
+                "channel": "Security",
+                "event_code": 4688,
+                "process_id": "0x1f60",
+                "process_name": "C:\\Windows\\System32\\taskhostw.exe",
+                "parent_process_id": "0x0280",
+                "parent_process_name": "C:\\Windows\\System32\\services.exe",
+                "command_line": '"C:\\Windows\\System32\\taskhostw.exe" {222A245B-E637-4AE9-A93F-A2408C012C6B}',
+                "raw_record_id": "Security:9501070",
+                "session_id": session_id,
+                "is_synthetic": True,
+                "dataset_type": "synthetic",
+                "label": "normal",
+            },
+            raw={
+                "Event": {
+                    "System": {
+                        "Provider": {"Name": "Microsoft-Windows-Security-Auditing"},
+                        "EventID": 4688,
+                        "EventRecordID": 9501070,
+                        "Channel": "Security",
+                        "Computer": host,
+                        "TimeCreated": {"SystemTime": "2026-10-24T08:45:00.000Z"},
+                    },
+                    "EventData": {
+                        "NewProcessName": "C:\\Windows\\System32\\taskhostw.exe",
+                        "ProcessId": "0x1f60",
+                        "CommandLine": '"C:\\Windows\\System32\\taskhostw.exe" {222A245B-E637-4AE9-A93F-A2408C012C6B}',
+                        "SubjectUserName": "SYSTEM",
+                        "SubjectDomainName": "NT AUTHORITY",
+                    },
+                }
+            },
+            raw_record_id="Security:9501070",
+        )
+    )
+
+    return events
+
+
 def write_fixture_json(output_path: Path, data: Any) -> None:
     """Serializes data into formatted JSON deterministically."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1394,7 +1867,13 @@ def generate_all_fixtures(output_dir: Path) -> dict[str, Path]:
     write_fixture_json(ts_disc_path, ts_disc_events)
     results["timestamp_discrepancy"] = ts_disc_path
 
-    # 7. invalid_events.json (isolated negative test cases)
+    # 7. synthetic_normal.json (Phase 3 Step 2: Labeled synthetic normal workstation activity)
+    synth_normal_path = output_dir / "synthetic_normal.json"
+    synth_normal_events = generate_synthetic_normal()
+    write_fixture_json(synth_normal_path, synth_normal_events)
+    results["synthetic_normal"] = synth_normal_path
+
+    # 8. invalid_events.json (isolated negative test cases)
     invalid_path = output_dir / "invalid_events.json"
     invalid_cases = generate_invalid_events()
     write_fixture_json(invalid_path, invalid_cases)
@@ -1471,6 +1950,7 @@ def validate_fixtures(fixtures_dir: Path) -> bool:
         "bulk_file_creation.json",
         "log_cleared.json",
         "timestamp_discrepancy.json",
+        "synthetic_normal.json",
     ]
     all_valid = True
 
@@ -1533,6 +2013,7 @@ def main() -> None:
             "bulk_file_creation",
             "log_cleared",
             "timestamp_discrepancy",
+            "synthetic_normal",
             "invalid_events",
         ],
         default="all",
@@ -1561,6 +2042,8 @@ def main() -> None:
         write_fixture_json(output_dir / "log_cleared.json", generate_log_cleared())
     elif args.scenario == "timestamp_discrepancy":
         write_fixture_json(output_dir / "timestamp_discrepancy.json", generate_timestamp_discrepancy())
+    elif args.scenario == "synthetic_normal":
+        write_fixture_json(output_dir / "synthetic_normal.json", generate_synthetic_normal())
     elif args.scenario == "invalid_events":
         write_fixture_json(output_dir / "invalid_events.json", generate_invalid_events())
 
