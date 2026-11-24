@@ -83,7 +83,7 @@ def init_db(db_path: Optional[Union[str, Path]] = None) -> None:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_events_action ON events(action);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_events_entity ON events(entity);")
 
-        # 2. Activities Table
+        # 2. Activities Table (Updated with ML Anomaly Score and Threat Level per docs/ml.md)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS activities (
                 activity_id TEXT PRIMARY KEY,
@@ -93,10 +93,20 @@ def init_db(db_path: Optional[Union[str, Path]] = None) -> None:
                 ts_end_utc TEXT NOT NULL,
                 confidence REAL NOT NULL DEFAULT 1.0,
                 narrative TEXT,
+                ml_anomaly_score REAL,
+                threat_level TEXT DEFAULT 'MEDIUM',
                 created_at_utc TEXT NOT NULL
             );
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_activities_ts ON activities(ts_start_utc);")
+
+        # Backward compatibility schema migration: ensure new columns exist if table predates Phase 3
+        cursor.execute("PRAGMA table_info(activities);")
+        existing_cols = {row["name"] for row in cursor.fetchall()}
+        if "ml_anomaly_score" not in existing_cols:
+            cursor.execute("ALTER TABLE activities ADD COLUMN ml_anomaly_score REAL;")
+        if "threat_level" not in existing_cols:
+            cursor.execute("ALTER TABLE activities ADD COLUMN threat_level TEXT DEFAULT 'MEDIUM';")
 
         # 3. Evidence Provenance Link Table (activity_events)
         cursor.execute("""
@@ -325,8 +335,8 @@ def insert_activity(
         cursor.execute("""
             INSERT OR REPLACE INTO activities (
                 activity_id, rule_id, rule_name, ts_start_utc, ts_end_utc,
-                confidence, narrative, created_at_utc
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                confidence, narrative, ml_anomaly_score, threat_level, created_at_utc
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """, (
             act.activity_id,
             act.rule_id,
@@ -335,6 +345,8 @@ def insert_activity(
             act.ts_end_utc,
             act.confidence,
             act.narrative,
+            act.ml_anomaly_score,
+            act.threat_level,
             now_utc
         ))
 
@@ -407,3 +419,67 @@ def get_activity_by_id(
             activity["evidence_chain"] = evidence
 
         return activity
+
+
+def get_timeline(
+    limit: int = 100,
+    offset: int = 0,
+    source: Optional[str] = None,
+    order: str = "asc",
+    db_path: Optional[Union[str, Path]] = None
+) -> list[dict[str, Any]]:
+    """
+    CRITICAL HANDOFF CONTRACT FOR CHETNA'S REACT DASHBOARD (docs/ml.md):
+    Retrieves chronological timeline merging normalized events and reconstructed activities.
+    Each item contains:
+    - type: "event" | "activity"
+    - ts_utc: Timestamp for chronological sorting
+    - data: Complete dictionary representation of the item
+    """
+    logger.debug("[get_timeline] [RECEIVED] limit=%d offset=%d source=%s order=%s", limit, offset, source, order)
+    with db_session(db_path) as conn:
+        cursor = conn.cursor()
+
+        # 1. Fetch events
+        event_query = "SELECT * FROM events"
+        params: list[Any] = []
+        if source:
+            event_query += " WHERE source = ?"
+            params.append(source)
+        cursor.execute(event_query, params)
+        event_rows = cursor.fetchall()
+
+        # 2. Fetch activities (included unless specifically filtering by a non-matching source)
+        activity_rows = []
+        if not source:
+            cursor.execute("SELECT * FROM activities;")
+            activity_rows = cursor.fetchall()
+
+    timeline_items: list[dict[str, Any]] = []
+
+    for r in event_rows:
+        ev = _row_to_event_dict(r)
+        timeline_items.append({
+            "type": "event",
+            "ts_utc": ev["ts_utc"],
+            "data": ev
+        })
+
+    for r in activity_rows:
+        act = dict(r)
+        timeline_items.append({
+            "type": "activity",
+            "ts_utc": act["ts_start_utc"],
+            "data": act
+        })
+
+    # Sort items chronologically
+    reverse = (order.lower() == "desc")
+    timeline_items.sort(key=lambda item: item["ts_utc"], reverse=reverse)
+
+    paginated = timeline_items[offset : offset + limit]
+    logger.debug(
+        "[get_timeline] [PRODUCED] Returning %d merged timeline item(s) (total %d)",
+        len(paginated), len(timeline_items)
+    )
+    return paginated
