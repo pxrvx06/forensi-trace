@@ -1,0 +1,121 @@
+{
+  "scenario_id": "scenario_a_prime",
+  "name": "Scenario A': Staged Execution via System Drive (Evasion Variant)",
+  "label": "malicious",
+  "description": "Payload staged from removable media to local disk C:\\Users\\...\\Temp before execution to evade direct removable-execution alerts.",
+  "expected_rules": [
+    "R2"
+  ],
+  "expected_threat_level": "HIGH",
+  "event_count": 3,
+  "events": [
+    {
+      "event_id": "83c5715b877576971e222be6275b36b1634326b37c93e98316085a47f8c20e1f",
+      "source": "usb",
+      "ts_utc": "2026-10-23T11:00:00.050Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "E: (Kingston DataTraveler 80000000000123)",
+      "details": {
+        "drive_letter": "E:",
+        "device_name": "Kingston DataTraveler",
+        "serial_number": "80000000000123",
+        "vendor_id": "0951",
+        "product_id": "1666",
+        "raw_record_id": "USBSTOR\\DISK&VEN_KINGSTON&PROD_DATATRAVELER\\80000000000123",
+        "scenario_id": "scenario_a_prime",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "DeviceInstanceId": "USBSTOR\\DISK&VEN_KINGSTON&PROD_DATATRAVELER\\80000000000123&0",
+        "Class": "DiskDrive",
+        "FriendlyName": "Kingston DataTraveler USB Device",
+        "DriveLetter": "E:",
+        "EventType": "DBT_DEVICEARRIVAL"
+      }
+    },
+    {
+      "event_id": "ce983127daa4fa4a3772a5e266acaa240d24fd7a39f2289289ec4d80a146228b",
+      "source": "fs",
+      "ts_utc": "2026-10-23T11:01:20.300Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_CREATED",
+      "entity_type": "file",
+      "entity": "C:\\Users\\analyst\\AppData\\Local\\Temp\\staged_payload.exe",
+      "details": {
+        "drive_letter": "C:",
+        "file_path": "C:\\Users\\analyst\\AppData\\Local\\Temp\\staged_payload.exe",
+        "file_name": "staged_payload.exe",
+        "extension": ".exe",
+        "file_size_bytes": 2097152,
+        "is_directory": false,
+        "source_media": "E:",
+        "raw_record_id": "FILE_CREATED|C:\\Users\\analyst\\AppData\\Local\\Temp\\staged_payload.exe",
+        "scenario_id": "scenario_a_prime",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "created",
+        "src_path": "C:\\Users\\analyst\\AppData\\Local\\Temp\\staged_payload.exe",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "e472f77c7a246c92d4d1520cec69858bc7fe5579ca7e836088b544aac99a4379",
+      "source": "eventlog",
+      "ts_utc": "2026-10-23T11:02:45.600Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "CONTOSO\\analyst",
+      "action": "PROCESS_STARTED",
+      "entity_type": "process",
+      "entity": "C:\\Users\\analyst\\AppData\\Local\\Temp\\staged_payload.exe",
+      "details": {
+        "drive_letter": "C:",
+        "event_record_id": 9482150,
+        "channel": "Security",
+        "event_code": 4688,
+        "process_id": "0x2b40",
+        "process_name": "C:\\Users\\analyst\\AppData\\Local\\Temp\\staged_payload.exe",
+        "parent_process_id": "0x0e20",
+        "parent_process_name": "C:\\Windows\\explorer.exe",
+        "command_line": "\"C:\\Users\\analyst\\AppData\\Local\\Temp\\staged_payload.exe\"",
+        "raw_record_id": "Security:9482150",
+        "scenario_id": "scenario_a_prime",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "Event": {
+          "System": {
+            "Provider": {
+              "Name": "Microsoft-Windows-Security-Auditing"
+            },
+            "EventID": 4688,
+            "EventRecordID": 9482150,
+            "Channel": "Security",
+            "Computer": "WIN-FORENSIC-01",
+            "TimeCreated": {
+              "SystemTime": "2026-10-23T11:02:45.600Z"
+            }
+          },
+          "EventData": {
+            "NewProcessName": "C:\\Users\\analyst\\AppData\\Local\\Temp\\staged_payload.exe",
+            "ProcessId": "0x2b40",
+            "CommandLine": "\"C:\\Users\\analyst\\AppData\\Local\\Temp\\staged_payload.exe\"",
+            "ParentProcessName": "C:\\Windows\\explorer.exe",
+            "SubjectUserName": "analyst",
+            "SubjectDomainName": "CONTOSO"
+          }
+        }
+      }
+    }
+  ]
+}

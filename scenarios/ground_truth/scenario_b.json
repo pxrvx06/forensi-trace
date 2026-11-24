@@ -1,0 +1,150 @@
+{
+  "scenario_id": "scenario_b",
+  "name": "Scenario B: Staged and Delayed Removable Execution",
+  "label": "malicious",
+  "description": "Multi-stage deployment on removable drive with file modification and deliberate execution delay.",
+  "expected_rules": [
+    "R1",
+    "R2",
+    "R7"
+  ],
+  "expected_threat_level": "CRITICAL",
+  "event_count": 4,
+  "events": [
+    {
+      "event_id": "74d7f5aa483da1ec6f9e25addedbadb19c02729785dcdb684eaf6ece4f956d25",
+      "source": "usb",
+      "ts_utc": "2026-10-23T14:00:00.100Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "SYSTEM",
+      "action": "DEVICE_ARRIVED",
+      "entity_type": "device",
+      "entity": "E: (SanDisk Extreme 5C64000098765432)",
+      "details": {
+        "drive_letter": "E:",
+        "device_name": "SanDisk Extreme",
+        "serial_number": "5C64000098765432",
+        "vendor_id": "0781",
+        "product_id": "5591",
+        "raw_record_id": "USBSTOR\\DISK&VEN_SANDISK&PROD_EXTREME\\5C64000098765432",
+        "scenario_id": "scenario_b",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "DeviceInstanceId": "USBSTOR\\DISK&VEN_SANDISK&PROD_EXTREME\\5C64000098765432&0",
+        "Class": "DiskDrive",
+        "FriendlyName": "SanDisk Extreme USB Device",
+        "DriveLetter": "E:",
+        "EventType": "DBT_DEVICEARRIVAL"
+      }
+    },
+    {
+      "event_id": "69c6c7b1dea58fa1feef3bf2dbba7c856df043f4459ad0977d2ff8ea70c459f4",
+      "source": "fs",
+      "ts_utc": "2026-10-23T14:01:00.200Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_CREATED",
+      "entity_type": "file",
+      "entity": "E:\\staging\\loader.exe",
+      "details": {
+        "drive_letter": "E:",
+        "file_path": "E:\\staging\\loader.exe",
+        "file_name": "loader.exe",
+        "extension": ".exe",
+        "file_size_bytes": 524288,
+        "is_directory": false,
+        "raw_record_id": "FILE_CREATED|E:\\staging\\loader.exe",
+        "scenario_id": "scenario_b",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "created",
+        "src_path": "E:\\staging\\loader.exe",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "0e13b07e7796ede19f68561697630aee30267f9bf6a67b34564a71514c051a21",
+      "source": "fs",
+      "ts_utc": "2026-10-23T14:01:30.500Z",
+      "host": "WIN-FORENSIC-01",
+      "user": null,
+      "action": "FILE_MODIFIED",
+      "entity_type": "file",
+      "entity": "E:\\staging\\loader.exe",
+      "details": {
+        "drive_letter": "E:",
+        "file_path": "E:\\staging\\loader.exe",
+        "file_name": "loader.exe",
+        "extension": ".exe",
+        "file_size_bytes": 1048576,
+        "is_directory": false,
+        "raw_record_id": "FILE_MODIFIED|E:\\staging\\loader.exe",
+        "scenario_id": "scenario_b",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "event_type": "modified",
+        "src_path": "E:\\staging\\loader.exe",
+        "is_directory": false
+      }
+    },
+    {
+      "event_id": "4c76c138814d1920e4a4f32a81022414901e856364c09a3f2e7bf47c44ebd09e",
+      "source": "eventlog",
+      "ts_utc": "2026-10-23T14:04:30.800Z",
+      "host": "WIN-FORENSIC-01",
+      "user": "CONTOSO\\analyst",
+      "action": "PROCESS_STARTED",
+      "entity_type": "process",
+      "entity": "E:\\staging\\loader.exe",
+      "details": {
+        "drive_letter": "E:",
+        "event_record_id": 9483320,
+        "channel": "Security",
+        "event_code": 4688,
+        "process_id": "0x3c10",
+        "process_name": "E:\\staging\\loader.exe",
+        "parent_process_id": "0x0e20",
+        "parent_process_name": "C:\\Windows\\explorer.exe",
+        "command_line": "\"E:\\staging\\loader.exe\" --staged",
+        "raw_record_id": "Security:9483320",
+        "scenario_id": "scenario_b",
+        "label": "malicious",
+        "is_synthetic": true,
+        "dataset_type": "scenario"
+      },
+      "raw": {
+        "Event": {
+          "System": {
+            "Provider": {
+              "Name": "Microsoft-Windows-Security-Auditing"
+            },
+            "EventID": 4688,
+            "EventRecordID": 9483320,
+            "Channel": "Security",
+            "Computer": "WIN-FORENSIC-01",
+            "TimeCreated": {
+              "SystemTime": "2026-10-23T14:04:30.800Z"
+            }
+          },
+          "EventData": {
+            "NewProcessName": "E:\\staging\\loader.exe",
+            "ProcessId": "0x3c10",
+            "CommandLine": "\"E:\\staging\\loader.exe\" --staged",
+            "ParentProcessName": "C:\\Windows\\explorer.exe",
+            "SubjectUserName": "analyst",
+            "SubjectDomainName": "CONTOSO"
+          }
+        }
+      }
+    }
+  ]
+}
