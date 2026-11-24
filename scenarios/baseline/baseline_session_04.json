@@ -1,0 +1,82 @@
+[
+  {
+    "event_id": "0546f48a627aa3b332cf0c0ac190ee6ce5c7b7253945ad1f8edaa798c65cbcd9",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T15:00:00.000Z",
+    "host": "BLOX",
+    "user": "SYSTEM",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\taskhostw.exe",
+    "details": {
+      "process_name": "taskhostw.exe",
+      "command_line": "\"taskhostw.exe\" {222A245B-E637-4AE9-A93F-A2408C012C6B}",
+      "raw_record_id": "Security:2893010",
+      "session_id": "baseline_session_04"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2893010"
+    }
+  },
+  {
+    "event_id": "7c074a431e8daac0314fc4af19eb2d735c21cc4ad63ca1f2cf1d6f03bd7787fb",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T15:00:15.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\cmd.exe",
+    "details": {
+      "process_name": "cmd.exe",
+      "command_line": "\"cmd.exe\" /c ipconfig /all",
+      "raw_record_id": "Security:2893025",
+      "session_id": "baseline_session_04"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2893025"
+    }
+  },
+  {
+    "event_id": "87362106a113c6a0b82d75583a95599e8dfce7cf3d4bd8077af954b92dae3efb",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T15:00:17.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\ipconfig.exe",
+    "details": {
+      "process_name": "ipconfig.exe",
+      "command_line": "\"ipconfig.exe\" /all",
+      "raw_record_id": "Security:2893030",
+      "session_id": "baseline_session_04"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2893030"
+    }
+  },
+  {
+    "event_id": "7149b621eb5c32ac203784d70fc832ac31133b2438c2e5f698a2f27c645b007b",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T15:00:37.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\whoami.exe",
+    "details": {
+      "process_name": "whoami.exe",
+      "command_line": "\"whoami.exe\"",
+      "raw_record_id": "Security:2893045",
+      "session_id": "baseline_session_04"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2893045"
+    }
+  }
+]

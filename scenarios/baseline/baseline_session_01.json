@@ -1,0 +1,228 @@
+[
+  {
+    "event_id": "fcef1bf977a1fa8c387894c8950801a2c2cb227aac1c60d427a5b11f8b09ef40",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T09:00:00.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "LOGON",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\winlogon.exe",
+    "details": {
+      "channel": "Security",
+      "event_code": 4624,
+      "logon_type": 2,
+      "raw_record_id": "Security:2890010",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "EventID": 4624,
+      "LogonType": 2,
+      "TargetUserName": "BLOX\\DAKSH SHAPARIA"
+    }
+  },
+  {
+    "event_id": "7f7730c22d5ff85c8af41cb3b594ae121ce87ac6f9ef3cb0838a4f5d0ac8b0ee",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T09:00:15.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "details": {
+      "process_name": "chrome.exe",
+      "command_line": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"",
+      "raw_record_id": "Security:2890020",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2890020"
+    }
+  },
+  {
+    "event_id": "afab5a1b03c3553344ad7afa763b033e55dd97bd0e2e302aa8132931796e8f87",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T09:00:45.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\notepad.exe",
+    "details": {
+      "process_name": "notepad.exe",
+      "command_line": "\"C:\\Windows\\System32\\notepad.exe\" C:\\Users\\analyst\\Documents\\meeting_notes.txt",
+      "raw_record_id": "Security:2890035",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2890035"
+    }
+  },
+  {
+    "event_id": "7627981def1112bb3e78528c8a9550f9a5c9887970aac24836b58577dec4c205",
+    "source": "fs",
+    "ts_utc": "2026-11-20T09:00:50.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "C:\\Users\\analyst\\Documents\\meeting_notes.txt",
+    "details": {
+      "file_name": "meeting_notes.txt",
+      "extension": ".txt",
+      "file_size_bytes": 1024,
+      "raw_record_id": "FILE_CREATED|C:\\Users\\analyst\\Documents\\meeting_notes.txt",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_CREATED|C:\\Users\\analyst\\Documents\\meeting_notes.txt"
+    }
+  },
+  {
+    "event_id": "73fa41f20ee94236a78b997b1a2e481f4fbbd725ea168b98262d23267f3aab8a",
+    "source": "fs",
+    "ts_utc": "2026-11-20T09:01:10.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_MODIFIED",
+    "entity_type": "file",
+    "entity": "C:\\Users\\analyst\\Documents\\meeting_notes.txt",
+    "details": {
+      "file_name": "meeting_notes.txt",
+      "extension": ".txt",
+      "file_size_bytes": 2450,
+      "raw_record_id": "FILE_MODIFIED|C:\\Users\\analyst\\Documents\\meeting_notes.txt",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_MODIFIED|C:\\Users\\analyst\\Documents\\meeting_notes.txt"
+    }
+  },
+  {
+    "event_id": "e46dcecb2731e6dd881e2f550f7f6abf02d0bccec0178037f86a6b5ddb3ef510",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T09:01:20.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "details": {
+      "process_name": "chrome.exe",
+      "command_line": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --field-trial-handle=0",
+      "raw_record_id": "Security:2890040",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2890040"
+    }
+  },
+  {
+    "event_id": "818b66dc10e8a075313ba9d9cd949ed307c9673b0398b2dd1e986daf409f2503",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T09:01:30.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "details": {
+      "process_name": "chrome.exe",
+      "command_line": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --field-trial-handle=1",
+      "raw_record_id": "Security:2890041",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2890041"
+    }
+  },
+  {
+    "event_id": "f6978aa091a68d0ecfdce7f751c1d086cb9025df67e25e0f51bd308831d5b38e",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T09:01:40.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "details": {
+      "process_name": "chrome.exe",
+      "command_line": "\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --type=renderer --field-trial-handle=2",
+      "raw_record_id": "Security:2890042",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2890042"
+    }
+  },
+  {
+    "event_id": "36c44e48ebf94a63f3d2f81576f4d0aa7b2e121cc553e1e0aa37e99ee1f79ffe",
+    "source": "fs",
+    "ts_utc": "2026-11-20T09:02:25.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "C:\\Users\\analyst\\Downloads\\quarterly_report.pdf",
+    "details": {
+      "file_name": "quarterly_report.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 450200,
+      "raw_record_id": "FILE_CREATED|C:\\Users\\analyst\\Downloads\\quarterly_report.pdf",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_CREATED|C:\\Users\\analyst\\Downloads\\quarterly_report.pdf"
+    }
+  },
+  {
+    "event_id": "6ed744d0293de12a9b8520877cf0e9f9c4a595861ac9ce327f4cd9543e4c78fa",
+    "source": "fs",
+    "ts_utc": "2026-11-20T09:02:30.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_MODIFIED",
+    "entity_type": "file",
+    "entity": "C:\\Users\\analyst\\Downloads\\quarterly_report.pdf",
+    "details": {
+      "file_name": "quarterly_report.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 450200,
+      "raw_record_id": "FILE_MODIFIED|C:\\Users\\analyst\\Downloads\\quarterly_report.pdf",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_MODIFIED|C:\\Users\\analyst\\Downloads\\quarterly_report.pdf"
+    }
+  },
+  {
+    "event_id": "96fea47d3a1bc0aea824325c5c427be2cba10e7639608c62420db2784a85d347",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T09:02:55.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\System32\\calc.exe",
+    "details": {
+      "process_name": "calc.exe",
+      "command_line": "\"C:\\Windows\\System32\\calc.exe\"",
+      "raw_record_id": "Security:2890060",
+      "session_id": "baseline_session_01"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2890060"
+    }
+  }
+]

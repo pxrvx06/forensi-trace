@@ -1,0 +1,225 @@
+[
+  {
+    "event_id": "e383e4b9e83591fdeb495a63f49d89b78626567df24ae21da84696de632e243d",
+    "source": "usb",
+    "ts_utc": "2026-11-20T11:00:00.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "DEVICE_ARRIVED",
+    "entity_type": "device",
+    "entity": "D: (hp v237w 19514458)",
+    "details": {
+      "drive_letter": "D:",
+      "device_name": "hp v237w",
+      "serial_number": "19514458",
+      "vendor_id": "03f0",
+      "product_id": "7e40",
+      "file_system": "FAT32",
+      "raw_record_id": "USBSTOR\\DISK&VEN_HP&PROD_V237W\\19514458",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEARRIVAL",
+      "DriveLetter": "D:"
+    }
+  },
+  {
+    "event_id": "a69a99257f82c90472636814f8eb608d34e48a877754a1a663ab9d69c38edf96",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T11:00:08.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Windows\\explorer.exe",
+    "details": {
+      "process_name": "explorer.exe",
+      "command_line": "\"C:\\Windows\\explorer.exe\" D:\\",
+      "raw_record_id": "Security:2891010",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2891010"
+    }
+  },
+  {
+    "event_id": "06dde89816cbe2d18bf20eadac1ffc9dec517d2b9b5faeca2afd4917996cade0",
+    "source": "fs",
+    "ts_utc": "2026-11-20T11:00:20.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "D:\\backup_q3_summary.docx",
+    "details": {
+      "drive_letter": "D:",
+      "file_path": "D:\\backup_q3_summary.docx",
+      "file_name": "backup_q3_summary.docx",
+      "extension": ".docx",
+      "file_size_bytes": 55200,
+      "raw_record_id": "FILE_CREATED|D:\\backup_q3_summary.docx",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_CREATED|D:\\backup_q3_summary.docx"
+    }
+  },
+  {
+    "event_id": "5dd632e6da8343a94513bbec5250982e9aff68af5e8483cbc812b40dbe6b1d6e",
+    "source": "fs",
+    "ts_utc": "2026-11-20T11:00:22.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_MODIFIED",
+    "entity_type": "file",
+    "entity": "D:\\backup_q3_summary.docx",
+    "details": {
+      "drive_letter": "D:",
+      "file_path": "D:\\backup_q3_summary.docx",
+      "file_name": "backup_q3_summary.docx",
+      "extension": ".docx",
+      "file_size_bytes": 55200,
+      "raw_record_id": "FILE_MODIFIED|D:\\backup_q3_summary.docx",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_MODIFIED|D:\\backup_q3_summary.docx"
+    }
+  },
+  {
+    "event_id": "fb2de11ed5f7ab75e6053b46459085ada36d0627b6c60afc36670f5fbfe808ec",
+    "source": "fs",
+    "ts_utc": "2026-11-20T11:00:34.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "D:\\financial_model.xlsx",
+    "details": {
+      "drive_letter": "D:",
+      "file_path": "D:\\financial_model.xlsx",
+      "file_name": "financial_model.xlsx",
+      "extension": ".xlsx",
+      "file_size_bytes": 104200,
+      "raw_record_id": "FILE_CREATED|D:\\financial_model.xlsx",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_CREATED|D:\\financial_model.xlsx"
+    }
+  },
+  {
+    "event_id": "aa1a7dd79e16e3683dc53f040ee34061cf1a6ff0fd3ad7800d72131c027d7df7",
+    "source": "fs",
+    "ts_utc": "2026-11-20T11:00:36.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_MODIFIED",
+    "entity_type": "file",
+    "entity": "D:\\financial_model.xlsx",
+    "details": {
+      "drive_letter": "D:",
+      "file_path": "D:\\financial_model.xlsx",
+      "file_name": "financial_model.xlsx",
+      "extension": ".xlsx",
+      "file_size_bytes": 104200,
+      "raw_record_id": "FILE_MODIFIED|D:\\financial_model.xlsx",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_MODIFIED|D:\\financial_model.xlsx"
+    }
+  },
+  {
+    "event_id": "971be96284107034412ce09755bafeee6143350a18fcc291a4a9bb3aab7f0b67",
+    "source": "fs",
+    "ts_utc": "2026-11-20T11:00:48.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_CREATED",
+    "entity_type": "file",
+    "entity": "D:\\presentation_slides.pdf",
+    "details": {
+      "drive_letter": "D:",
+      "file_path": "D:\\presentation_slides.pdf",
+      "file_name": "presentation_slides.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 892000,
+      "raw_record_id": "FILE_CREATED|D:\\presentation_slides.pdf",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_CREATED|D:\\presentation_slides.pdf"
+    }
+  },
+  {
+    "event_id": "889bf4f51458495d8f8bda06bdf795d0993ab315ccd8e6d2bc29a6c1ac61f9c0",
+    "source": "fs",
+    "ts_utc": "2026-11-20T11:00:50.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "FILE_MODIFIED",
+    "entity_type": "file",
+    "entity": "D:\\presentation_slides.pdf",
+    "details": {
+      "drive_letter": "D:",
+      "file_path": "D:\\presentation_slides.pdf",
+      "file_name": "presentation_slides.pdf",
+      "extension": ".pdf",
+      "file_size_bytes": 892000,
+      "raw_record_id": "FILE_MODIFIED|D:\\presentation_slides.pdf",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "source": "fs",
+      "record_id": "FILE_MODIFIED|D:\\presentation_slides.pdf"
+    }
+  },
+  {
+    "event_id": "36175108fec7d13e9b6133bba6146b50b4267ebbad8cec54c56b96ec759fd345",
+    "source": "eventlog",
+    "ts_utc": "2026-11-20T11:01:15.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "PROCESS_STARTED",
+    "entity_type": "process",
+    "entity": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+    "details": {
+      "process_name": "WINWORD.EXE",
+      "command_line": "\"C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE\" \"D:\\backup_q3_summary.docx\"",
+      "raw_record_id": "Security:2891040",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "source": "eventlog",
+      "record_id": "Security:2891040"
+    }
+  },
+  {
+    "event_id": "cf21e2692f97fee330eccd70e70e2ec06fc86348ddbfbc38183a0a5bb797a0ca",
+    "source": "usb",
+    "ts_utc": "2026-11-20T11:03:15.000Z",
+    "host": "BLOX",
+    "user": "BLOX\\DAKSH SHAPARIA",
+    "action": "DEVICE_REMOVED",
+    "entity_type": "device",
+    "entity": "D: (hp v237w 19514458)",
+    "details": {
+      "drive_letter": "D:",
+      "device_name": "hp v237w",
+      "serial_number": "19514458",
+      "raw_record_id": "USBSTOR\\DISK&VEN_HP&PROD_V237W\\19514458",
+      "session_id": "baseline_session_02"
+    },
+    "raw": {
+      "EventType": "DBT_DEVICEREMOVECOMPLETE",
+      "DriveLetter": "D:"
+    }
+  }
+]
