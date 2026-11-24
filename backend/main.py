@@ -25,7 +25,8 @@ from backend.db import (
     get_events_in_window,
     insert_activity,
     get_activities,
-    get_activity_by_id
+    get_activity_by_id,
+    get_timeline
 )
 
 logger = logging.getLogger("forensitrace.api")
@@ -193,6 +194,31 @@ def get_single_event(event_id: str):
         )
     logger.info("[get_single_event] [PRODUCED] Found event_id='%s'", event_id)
     return event
+
+
+# ---------------------------------------------------------
+# Interactive Timeline Endpoint (Step 1 of Phase 3 / docs/ml.md)
+# ---------------------------------------------------------
+@app.get("/timeline", tags=["Timeline"])
+def get_unified_timeline(
+    limit: int = Query(100, ge=1, le=1000, description="Max timeline items to return"),
+    offset: int = Query(0, ge=0, description="Pagination offset"),
+    source: Optional[str] = Query(None, description="Filter by event source: usb, fs, eventlog"),
+    order: str = Query("asc", regex="^(asc|desc)$", description="Sort order by UTC timestamp (asc or desc)")
+):
+    """
+    Unified chronological timeline endpoint for Chetna's React dashboard.
+    Merges normalized events and reconstructed activities in strict UTC timestamp order.
+    """
+    logger.info("[get_unified_timeline] [RECEIVED] limit=%d offset=%d source=%s order=%s", limit, offset, source, order)
+    timeline = get_timeline(limit=limit, offset=offset, source=source, order=order)
+    logger.info("[get_unified_timeline] [PRODUCED] Returning %d timeline items", len(timeline))
+    return {
+        "count": len(timeline),
+        "limit": limit,
+        "offset": offset,
+        "timeline": timeline
+    }
 
 
 # ---------------------------------------------------------

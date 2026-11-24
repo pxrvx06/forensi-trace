@@ -1,8 +1,11 @@
 # ForensiTrace project rules
 - Python 3.x, FastAPI, SQLite, watchdog, pywin32, python-evtx; React for the dashboard. Do not add other frameworks.
-- The event schema in docs/schema.md is a contract. Never change it; propose changes in a comment instead.
-- Correlation rules live in rules.yaml, not in code. No machine learning.
+- Machine learning is allowed only in engine/ml/, using PyTorch. Install the CPU build by default; GPU use must be optional and fall back to CPU.
+- docs/schema.md and docs/ml.md are contracts. Never change them; propose changes in a comment instead.
+- The input vector size is computed from the schema actions plus 3. Never hard-code it.
+- Correlation rules live in rules.yaml, not in code. The ML score never replaces rule confidence; show both.
+- Split train, validation and test data by recording session. Never evaluate on training data.
 - Every module gets clear, labeled print or log statements showing what it received and what it produced.
-- Every rule or parser gets a test that must fire and a test that must not fire.
+- Every rule, parser or feature function gets a test that must fire and a test that must not fire.
 - Windows-only code is isolated in agent/. Never run auditpol, wevtutil clear or anything that edits system logging without asking.
 - Keep each person's work inside their own folder: agent/, backend/, engine/, dashboard/.

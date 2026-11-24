@@ -163,15 +163,44 @@ class EventBatch(BaseModel):
         return self
 
 
+class ThreatLevelEnum(str, Enum):
+    """Allowed threat level classifications per docs/ml.md."""
+    CRITICAL = "CRITICAL"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
+
+
 class Activity(BaseModel):
-    """Reconstructed activity produced by Akash's correlation engine."""
+    """Reconstructed activity produced by Akash's correlation engine and scored with ML."""
     activity_id: str = Field(..., description="Unique activity identifier (e.g. act_20261023_001)")
     rule_id: str = Field(..., description="Triggered correlation rule ID (e.g. R1, R2, R7)")
     rule_name: str = Field(..., description="Human-readable rule title")
     ts_start_utc: str = Field(..., description="Earliest event timestamp in the sequence")
     ts_end_utc: str = Field(..., description="Latest event timestamp in the sequence")
-    confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Confidence score (0.0 to 1.0)")
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Rule confidence score (0.0 to 1.0)")
     narrative: Optional[str] = Field(None, description="Plain-English explanation citing evidence events")
+    ml_anomaly_score: Optional[float] = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Normalized ML autoencoder anomaly score (0.0 to 1.0)"
+    )
+    threat_level: Optional[Union[ThreatLevelEnum, str]] = Field(
+        default="MEDIUM",
+        description="Categorized threat level: CRITICAL, HIGH, MEDIUM, LOW"
+    )
+
+    @field_validator("threat_level")
+    @classmethod
+    def validate_threat_level(cls, v: Optional[Union[ThreatLevelEnum, str]]) -> Optional[str]:
+        if v is None:
+            return "MEDIUM"
+        val = v.value if isinstance(v, ThreatLevelEnum) else str(v).upper()
+        allowed = {"CRITICAL", "HIGH", "MEDIUM", "LOW"}
+        if val not in allowed:
+            raise ValueError(f"threat_level '{val}' must be one of {allowed}")
+        return val
 
 
 class ActivityEventLink(BaseModel):
