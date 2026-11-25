@@ -124,3 +124,35 @@ def compute_confidence(
     final_score = round(max(0.0, min(1.0, score)), 2)
     logger.debug("[compute_confidence] Rule %s -> score=%.2f, factors=%s", rule_id, final_score, factors)
     return final_score, factors
+
+
+def compute_hybrid_score(
+    rule_confidence: float,
+    ml_anomaly_score: Optional[float],
+    rule_weight: float = 0.5,
+    ml_weight: float = 0.5,
+) -> Tuple[float, bool]:
+    """
+    CRITICAL FORENSIC FORMULA (docs/ml.md Section 5.1):
+    R_hybrid = rule_weight * rule_confidence + ml_weight * ml_anomaly_score
+    If ML is unavailable, falls back to rule_confidence.
+    """
+    from engine.ml.hybrid import compute_hybrid_score as _compute_hybrid_score
+    return _compute_hybrid_score(
+        rule_confidence=rule_confidence,
+        ml_anomaly_score=ml_anomaly_score,
+        rule_weight=rule_weight,
+        ml_weight=ml_weight,
+    )
+
+
+def classify_threat_level(
+    rule_id: str,
+    combined_score: float,
+) -> str:
+    """
+    Categorizes discrete threat level (CRITICAL, HIGH, MEDIUM, LOW) per docs/ml.md Section 5.2.
+    """
+    from engine.ml.hybrid import classify_threat_level as _classify_threat_level
+    return _classify_threat_level(rule_id=rule_id, combined_score=combined_score)
+

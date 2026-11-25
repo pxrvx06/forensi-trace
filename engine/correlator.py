@@ -19,8 +19,10 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 from backend.schema import Activity, ActivityEventLink, Event
 from engine.config import RuleDefinition, RulesConfig, load_rules_config
-from engine.narratives import generate_narrative
+from engine.narratives import generate_narrative, append_ml_narrative_context
 from engine.scoring import compute_confidence
+from engine.ml.hybrid import HybridRiskEngine, classify_threat_level
+from engine.ml.scoring import AnomalyScorer
 
 logger = logging.getLogger("forensitrace.engine.correlator")
 if not logger.handlers:
@@ -103,11 +105,24 @@ class CorrelationEngine:
     Generates deterministic confidence scores and evidence provenance links.
     """
 
-    def __init__(self, rules_config: Optional[RulesConfig] = None, rules_path: Optional[Path | str] = None):
+    def __init__(
+        self,
+        rules_config: Optional[RulesConfig] = None,
+        rules_path: Optional[Path | str] = None,
+        ml_scorer: Optional[AnomalyScorer] = None,
+        artifacts_dir: Optional[Union[str, Path]] = None,
+    ):
         self.config = rules_config or load_rules_config(rules_path)
+        self.hybrid_engine = HybridRiskEngine()
+        self.ml_scorer = ml_scorer
+
+        if self.ml_scorer is None and artifacts_dir is not None:
+            self.ml_scorer = AnomalyScorer(artifacts_dir=artifacts_dir)
+
         logger.info(
-            "[CorrelationEngine] [PRODUCED] Engine initialized with rules: %s",
+            "[CorrelationEngine] [PRODUCED] Engine initialized with rules: %s (ML available: %s)",
             list(self.config.rules.keys()),
+            bool(self.ml_scorer and self.ml_scorer.is_available),
         )
 
     def _event_dict(self, event: Union[Event, dict[str, Any]]) -> dict[str, Any]:
@@ -119,6 +134,7 @@ class CorrelationEngine:
     def correlate_events(
         self,
         events: list[Union[Event, dict[str, Any]]],
+        ml_scorer: Optional[AnomalyScorer] = None,
     ) -> list[CorrelatedResult]:
         """
         In-memory correlation entrypoint.
@@ -172,6 +188,57 @@ class CorrelationEngine:
                 unique_results[r.activity.activity_id] = r
 
         deduped = list(unique_results.values())
+
+        # Tier 1 ML Anomaly Scoring and Threat Level Mapping
+        active_scorer = ml_scorer or self.ml_scorer
+        if active_scorer and active_scorer.is_available:
+            try:
+                windows = active_scorer.adapter.generate_session_windows(sorted_events)
+                if windows:
+                    window_results = active_scorer.score_windows(windows)
+                    for res in deduped:
+                        supporting_ids = [l.event_id for l in res.links]
+                        ml_score_res = active_scorer.score_activity(
+                            res.activity.activity_id,
+                            supporting_ids,
+                            window_results,
+                        )
+                        hybrid_res = self.hybrid_engine.evaluate(
+                            rule_id=res.activity.rule_id,
+                            rule_confidence=res.activity.confidence,
+                            ml_anomaly_score=ml_score_res.ml_anomaly_score,
+                        )
+                        res.activity.ml_anomaly_score = ml_score_res.ml_anomaly_score
+                        res.activity.threat_level = hybrid_res.threat_level
+
+                        # Extend narrative with ML tier findings if ML score is available
+                        if ml_score_res.ml_anomaly_score is not None and res.activity.narrative:
+                            res.activity.narrative = append_ml_narrative_context(
+                                base_narrative=res.activity.narrative,
+                                ml_anomaly_score=ml_score_res.ml_anomaly_score,
+                                combined_score=hybrid_res.combined_score,
+                                threat_level=hybrid_res.threat_level,
+                                ml_explanation=ml_score_res.explanation,
+                                ml_available=True,
+                            )
+                else:
+                    for res in deduped:
+                        res.activity.threat_level = classify_threat_level(
+                            res.activity.rule_id, res.activity.confidence
+                        )
+            except Exception as exc:
+                logger.warning("[correlate_events] ML scoring failed: %s; falling back to rule-only", exc)
+                for res in deduped:
+                    res.activity.threat_level = classify_threat_level(
+                        res.activity.rule_id, res.activity.confidence
+                    )
+        else:
+            # Fallback when ML is offline or model not loaded
+            for res in deduped:
+                res.activity.threat_level = classify_threat_level(
+                    res.activity.rule_id, res.activity.confidence
+                )
+
         logger.info(
             "[correlate_events] [PRODUCED] Reconstructed %d activity chain(s) from %d events",
             len(deduped),
