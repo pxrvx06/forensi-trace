@@ -1,0 +1,33 @@
+{
+  "threshold": 0.2896217405796051,
+  "percentile": 99.0,
+  "val_loss_mean": 0.2896217405796051,
+  "val_loss_median": 0.2896217405796051,
+  "val_loss_max": 0.2896217405796051,
+  "val_samples_count": 1,
+  "training_epochs_completed": 30,
+  "trained_at_utc": "2026-11-25T17:11:17.555494+00:00",
+  "is_synthetic": false,
+  "additional_metrics": {
+    "p90": 0.2896217405796051,
+    "p95": 0.2896217405796051,
+    "p99": 0.2896217405796051,
+    "final_train_loss": 0.18131983280181885,
+    "splits": {
+      "train": [
+        "baseline_session_01",
+        "baseline_session_02"
+      ],
+      "val": [
+        "baseline_session_03"
+      ],
+      "test": [
+        "baseline_session_04"
+      ]
+    },
+    "window_counts": {
+      "train": 3,
+      "val": 1
+    }
+  }
+}

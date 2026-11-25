@@ -30,6 +30,31 @@ def _short_id(event_id: str) -> str:
     return event_id[:8] if event_id else "unknown"
 
 
+def append_ml_narrative_context(
+    base_narrative: str,
+    ml_anomaly_score: Optional[float] = None,
+    combined_score: Optional[float] = None,
+    threat_level: Optional[str] = None,
+    ml_explanation: Optional[str] = None,
+    ml_available: bool = True,
+) -> str:
+    """
+    Extends base rule-grounded narrative with ML tier findings while strictly
+    maintaining objective, cautious forensic language (docs/ml.md Section 1, 5).
+    """
+    if not ml_available or ml_anomaly_score is None:
+        return f"{base_narrative.rstrip()} [ML Analysis: Tier 1 anomaly evaluation unavailable.]"
+
+    risk_str = f", combined risk index: {combined_score:.2f}" if combined_score is not None else ""
+    threat_str = f", threat level: {threat_level}" if threat_level else ""
+    extra_expl = f" {ml_explanation.strip()}" if ml_explanation else ""
+    ml_clause = (
+        f" [ML Analysis: Sequence anomaly score={ml_anomaly_score:.2f}{risk_str}{threat_str}.{extra_expl} "
+        f"Note: Anomaly score reflects statistical deviation from baseline activity, not proof of malicious intent.]"
+    )
+    return f"{base_narrative.rstrip()}{ml_clause}"
+
+
 def generate_narrative(
     rule_id: str,
     events: List[Dict[str, Any]],
@@ -50,7 +75,7 @@ def generate_narrative(
         delta_sec = int(ctx.get("delta_seconds", 0))
         window_sec = ctx.get("window_seconds", 300)
 
-        return (
+        base = (
             f"Removable storage device '{dev_name}' mounted on volume {drive} at {usb.get('ts_utc', 'N/A')} "
             f"[event:{_short_id(usb.get('event_id', ''))}], followed by file {fs_action} "
             f"for '{fs.get('entity', 'N/A')}' at {fs.get('ts_utc', 'N/A')} "
@@ -65,7 +90,7 @@ def generate_narrative(
         window_sec = ctx.get("window_seconds", 600)
         user_info = f" by user '{proc.get('user')}'" if proc.get("user") else ""
 
-        return (
+        base = (
             f"File '{fs.get('entity', 'N/A')}' was created at {fs.get('ts_utc', 'N/A')} "
             f"[event:{_short_id(fs.get('event_id', ''))}], then executed as process "
             f"'{proc.get('entity', 'N/A')}'{user_info} at {proc.get('ts_utc', 'N/A')} "
@@ -81,7 +106,7 @@ def generate_narrative(
         user_info = f" under user '{proc.get('user')}'" if proc.get("user") else ""
         usb_cite = f" [confirmed by USB arrival event:{_short_id(usb.get('event_id', ''))}]" if usb.get("event_id") else ""
 
-        return (
+        base = (
             f"Process '{proc.get('entity', 'N/A')}' executed{user_info} from confirmed removable drive {drive} "
             f"at {proc.get('ts_utc', 'N/A')} [event:{_short_id(proc.get('event_id', ''))}]{usb_cite} "
             f"with no preceding file creation observed in the preceding {window_sec}s window. "
@@ -99,7 +124,7 @@ def generate_narrative(
         if len(events) > 5:
             event_ids_str += f", ... (+{len(events) - 5} more)"
 
-        return (
+        base = (
             f"Burst of {file_count} files created on removable drive {drive} on host '{host}' "
             f"within a {span_sec}s span (configured burst window: {window_sec}s). "
             f"Supporting events include [{event_ids_str}]. "
@@ -117,7 +142,7 @@ def generate_narrative(
         direction = "following" if ctx.get("delta_seconds", 0) >= 0 else "preceding"
         act_desc = f"{act_ev.get('action', 'activity')} on '{act_ev.get('entity', 'N/A')}'"
 
-        return (
+        base = (
             f"{channel} log cleared on host '{host}' by user '{user}' at {log_ev.get('ts_utc', 'N/A')} "
             f"[event:{_short_id(log_ev.get('event_id', ''))}], occurring {delta_sec}s {direction} "
             f"observed activity ({act_desc} [event:{_short_id(act_ev.get('event_id', ''))}]). "
@@ -133,7 +158,7 @@ def generate_narrative(
         mtime = ctx.get("mtime_utc", fs_ev.get("ts_utc", "N/A"))
         observed = ctx.get("ts_observed_utc", "N/A")
 
-        return (
+        base = (
             f"Significant timestamp discrepancy detected on host '{fs_ev.get('host', 'UNKNOWN')}' "
             f"for file '{fs_ev.get('entity', 'N/A')}' [event:{_short_id(fs_ev.get('event_id', ''))}]: "
             f"filesystem modified time reported as {mtime}, but collector observed event at {observed} "
@@ -154,7 +179,7 @@ def generate_narrative(
         t2_sec = int(ctx.get("fs_to_proc_seconds", 0))
         user_info = f" under user '{proc.get('user')}'" if proc.get("user") else ""
 
-        return (
+        base = (
             f"Composite USB copy-and-execution sequence reconstructed on host '{host}': "
             f"Removable device '{dev_name}' mounted on volume {drive} at {usb.get('ts_utc', 'N/A')} [event:{_short_id(usb.get('event_id', ''))}]. "
             f"Executable file '{fs.get('entity', 'N/A')}' was written to {drive} after {t1_sec}s at {fs.get('ts_utc', 'N/A')} [event:{_short_id(fs.get('event_id', ''))}]. "
@@ -163,8 +188,23 @@ def generate_narrative(
             f"Observed telemetry provides complete end-to-end evidence linking device arrival, payload staging, and execution."
         )
 
-    # Fallback
-    return (
-        f"Reconstructed activity under rule {rule_id} across {len(events)} event(s): "
-        f"[{', '.join(_short_id(e.get('event_id', '')) for e in events)}]."
-    )
+    else:
+        # Fallback
+        base = (
+            f"Reconstructed activity under rule {rule_id} across {len(events)} event(s): "
+            f"[{', '.join(_short_id(e.get('event_id', '')) for e in events)}]."
+        )
+
+    # If ML context was explicitly supplied in ctx, append ML analysis
+    if "ml_anomaly_score" in ctx or "combined_score" in ctx:
+        return append_ml_narrative_context(
+            base_narrative=base,
+            ml_anomaly_score=ctx.get("ml_anomaly_score"),
+            combined_score=ctx.get("combined_score"),
+            threat_level=ctx.get("threat_level"),
+            ml_explanation=ctx.get("ml_explanation"),
+            ml_available=ctx.get("ml_available", True),
+        )
+
+    return base
+

@@ -1,0 +1,36 @@
+{
+  "feature_dim": 12,
+  "num_actions": 9,
+  "actions_order": [
+    "DEVICE_ARRIVED",
+    "DEVICE_REMOVED",
+    "FILE_CREATED",
+    "FILE_MODIFIED",
+    "FILE_DELETED",
+    "FILE_MOVED",
+    "PROCESS_STARTED",
+    "LOG_CLEARED",
+    "LOGON"
+  ],
+  "numerical_features": [
+    "DELTA_T_LOG",
+    "IS_EXECUTABLE",
+    "IS_REMOVABLE"
+  ],
+  "feature_names": [
+    "ACTION_DEVICE_ARRIVED",
+    "ACTION_DEVICE_REMOVED",
+    "ACTION_FILE_CREATED",
+    "ACTION_FILE_MODIFIED",
+    "ACTION_FILE_DELETED",
+    "ACTION_FILE_MOVED",
+    "ACTION_PROCESS_STARTED",
+    "ACTION_LOG_CLEARED",
+    "ACTION_LOGON",
+    "DELTA_T_LOG",
+    "IS_EXECUTABLE",
+    "IS_REMOVABLE"
+  ],
+  "window_size": 10,
+  "stride": 1
+}

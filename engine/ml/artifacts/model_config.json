@@ -1,0 +1,14 @@
+{
+  "input_dim": 12,
+  "hidden_dim": 16,
+  "latent_dim": 8,
+  "num_layers": 1,
+  "seq_len": 10,
+  "batch_size": 16,
+  "learning_rate": 0.005,
+  "epochs": 30,
+  "random_seed": 42,
+  "device": "cpu",
+  "threshold_percentile": 99.0,
+  "artifacts_dir": "engine\\ml\\artifacts"
+}
