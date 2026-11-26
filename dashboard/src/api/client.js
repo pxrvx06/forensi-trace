@@ -118,6 +118,55 @@ export async function fetchTimeline(
   return data;
 }
 
+export function getReportPdfUrl(activityId, baseUrl = DEFAULT_API_BASE) {
+  return `${baseUrl}/report/${encodeURIComponent(activityId)}`;
+}
+
+function parseDownloadFilename(contentDisposition, activityId) {
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?([^";]+)"?/i);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  const safeId = String(activityId).replace(/[^a-zA-Z0-9_-]/g, '_');
+  return `ForensiTrace_Report_${safeId}.pdf`;
+}
+
+export async function downloadActivityReportPdf(
+  activityId,
+  baseUrl = DEFAULT_API_BASE
+) {
+  const url = getReportPdfUrl(activityId, baseUrl);
+  logApi('GET /report/{activity_id}', { activityId, url }, { status: 'requesting' });
+
+  const response = await fetch(url, {
+    headers: { Accept: 'application/pdf' },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} from /report/${activityId}`);
+  }
+
+  const blob = await response.blob();
+  const filename = parseDownloadFilename(
+    response.headers.get('Content-Disposition'),
+    activityId
+  );
+
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = objectUrl;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(objectUrl);
+
+  logApi('GET /report/{activity_id}', { activityId }, { filename, bytes: blob.size });
+  return { filename, bytes: blob.size };
+}
+
 export function getMockDashboardBundle(sourceFilter = '') {
   const events = sourceFilter
     ? MOCK_EVENTS.filter((ev) => ev.source === sourceFilter)

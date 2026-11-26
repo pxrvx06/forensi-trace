@@ -10,6 +10,12 @@ export default defineConfig({
       '/events': 'http://127.0.0.1:8000',
       '/timeline': 'http://127.0.0.1:8000',
       '/activities': 'http://127.0.0.1:8000',
+      '/report': 'http://127.0.0.1:8000',
     },
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './tests/setupTests.js',
   },
 });
