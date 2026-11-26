@@ -7,14 +7,16 @@ Contract: docs/schema.md, docs/agent_interface.md & Step 4 of Execution Plan
 from __future__ import annotations
 
 import logging
+import re
 from datetime import datetime, timezone
 from typing import Any, List, Optional, Union
 
-from fastapi import FastAPI, HTTPException, Query, status
+from fastapi import FastAPI, HTTPException, Query, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from backend.schema import Event, EventBatch
+from backend.reports import generate_activity_pdf_bytes
 from backend.db import (
     init_db,
     reset_db,
@@ -204,7 +206,7 @@ def get_unified_timeline(
     limit: int = Query(100, ge=1, le=1000, description="Max timeline items to return"),
     offset: int = Query(0, ge=0, description="Pagination offset"),
     source: Optional[str] = Query(None, description="Filter by event source: usb, fs, eventlog"),
-    order: str = Query("asc", regex="^(asc|desc)$", description="Sort order by UTC timestamp (asc or desc)")
+    order: str = Query("asc", pattern="^(asc|desc)$", description="Sort order by UTC timestamp (asc or desc)")
 ):
     """
     Unified chronological timeline endpoint for Chetna's React dashboard.
@@ -253,6 +255,36 @@ def get_single_activity(activity_id: str):
         )
     logger.info("[get_single_activity] [PRODUCED] Found activity_id='%s'", activity_id)
     return activity
+
+
+# ---------------------------------------------------------
+# Forensic PDF Report Endpoint (Step 4 of Phase 3 / docs/ml.md)
+# ---------------------------------------------------------
+@app.get("/report/{activity_id}", tags=["Reports"])
+def download_activity_report(activity_id: str):
+    """
+    Generates and streams a standardized 3-page Forensic Investigation Report PDF
+    for the requested activity ID (Page 1: Summary & Threat Badge, Page 2: Timeline Table,
+    Page 3: Unedited Raw Evidence Appendix).
+    """
+    logger.info("[download_activity_report] [RECEIVED] PDF report request for activity_id='%s'", activity_id)
+    activity = get_activity_by_id(activity_id, include_evidence=True)
+    if not activity:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Activity with id '{activity_id}' not found"
+        )
+
+    pdf_bytes = generate_activity_pdf_bytes(activity)
+    safe_id = re.sub(r"[^a-zA-Z0-9_-]", "_", activity_id)
+    filename = f"ForensiTrace_Report_{safe_id}.pdf"
+    logger.info("[download_activity_report] [PRODUCED] Streaming %d bytes as '%s'", len(pdf_bytes), filename)
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
 
 
 # ---------------------------------------------------------
