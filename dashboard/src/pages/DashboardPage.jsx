@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  downloadActivityReportPdf,
   fetchActivityById,
   loadDashboardBundle,
 } from '../api/client';
@@ -116,6 +117,7 @@ export function DashboardPage({ initialPreferMock = false }) {
           loading={drawerLoading}
           error={drawerError}
           onClose={handleCloseDrawer}
+          onExportPdf={(actId) => downloadActivityReportPdf(actId)}
         />
       )}
     </div>

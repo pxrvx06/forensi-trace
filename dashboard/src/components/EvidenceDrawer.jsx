@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { downloadActivityReportPdf } from '../api/client';
 
 function tokenizeJson(value) {
   const formatted = JSON.stringify(value ?? {}, null, 2);
@@ -69,15 +70,35 @@ function extractRole(reason) {
 }
 
 /**
- * Step 5: Evidence drawer displaying raw events behind an activity
- * with rule, role, and JSON highlighting.
+ * Step 5 & Step 6: Evidence drawer displaying raw events behind an activity
+ * with rule, role, JSON highlighting, and "Export Forensic PDF" action.
  */
 export function EvidenceDrawer({
   activity,
   loading,
   error,
   onClose,
+  onExportPdf = downloadActivityReportPdf,
 }) {
+  const [exporting, setExporting] = useState(false);
+  const [exportStatus, setExportStatus] = useState(null);
+
+  useEffect(() => {
+    setExportStatus(null);
+    setExporting(false);
+  }, [activity?.activity_id]);
+
+  useEffect(() => {
+    if (!activity && !loading && !error) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activity, loading, error, onClose]);
+
   if (!activity && !loading && !error) {
     return null;
   }
@@ -87,6 +108,32 @@ export function EvidenceDrawer({
     activity?.ml_anomaly_score !== null && activity?.ml_anomaly_score !== undefined
       ? Number(activity.ml_anomaly_score).toFixed(2)
       : 'Unavailable';
+
+  const handleExportPdf = async () => {
+    if (!activity?.activity_id) return;
+    setExporting(true);
+    setExportStatus(null);
+    try {
+      const result = await onExportPdf(activity.activity_id);
+      console.info(
+        `[dashboard.EvidenceDrawer] [RECEIVED] export activity=${activity.activity_id} -> [PRODUCED] Downloaded ${result?.filename || 'PDF'}`
+      );
+      setExportStatus({
+        type: 'success',
+        message: `Downloaded ${result?.filename || `ForensiTrace_Report_${activity.activity_id}.pdf`}`,
+      });
+    } catch (err) {
+      console.error(
+        `[dashboard.EvidenceDrawer] [RECEIVED] export activity=${activity.activity_id} -> [PRODUCED] Error: ${err.message}`
+      );
+      setExportStatus({
+        type: 'error',
+        message: `PDF export requires the live backend (/report/${activity.activity_id}): ${err.message}`,
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   console.info(
     `[dashboard.EvidenceDrawer] [RECEIVED] activity=${activity?.activity_id || 'loading'} evidenceCount=${evidenceChain.length} -> [PRODUCED] Rendering explainability drawer`
@@ -99,6 +146,11 @@ export function EvidenceDrawer({
       aria-modal="true"
       aria-label="Evidence Drawer"
       data-testid="evidence-drawer"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <div className="evidence-drawer">
         <div className="drawer-header">
@@ -108,16 +160,43 @@ export function EvidenceDrawer({
               {activity ? `${activity.rule_id}: ${activity.rule_name}` : 'Loading Activity...'}
             </h2>
           </div>
-          <button
-            type="button"
-            className="btn-close-drawer"
-            onClick={onClose}
-            aria-label="Close evidence drawer"
-            data-testid="close-evidence-drawer"
-          >
-            &times;
-          </button>
+          <div className="drawer-actions">
+            {activity && (
+              <button
+                type="button"
+                className="btn-export-pdf"
+                onClick={handleExportPdf}
+                disabled={exporting || loading}
+                data-testid="export-pdf-btn"
+              >
+                {exporting ? 'Exporting PDF...' : 'Export Forensic PDF'}
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn-close-drawer"
+              onClick={onClose}
+              aria-label="Close evidence drawer"
+              data-testid="close-evidence-drawer"
+            >
+              &times;
+            </button>
+          </div>
         </div>
+
+        {exportStatus && (
+          <div
+            className={
+              exportStatus.type === 'success'
+                ? 'pdf-status-banner pdf-status-success'
+                : 'pdf-status-banner pdf-status-error'
+            }
+            role="status"
+            data-testid="pdf-export-status"
+          >
+            {exportStatus.message}
+          </div>
+        )}
 
         {loading && <div className="drawer-state">Loading supporting raw events...</div>}
         {error && <div className="drawer-error">{error}</div>}

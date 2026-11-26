@@ -650,6 +650,53 @@ body {
   font-size: 1.08rem;
 }
 
+.drawer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-export-pdf {
+  background: #0284c7;
+  color: #fff;
+  border: 1px solid #38bdf8;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-export-pdf:hover:not(:disabled) {
+  background: #0369a1;
+}
+
+.btn-export-pdf:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pdf-status-banner {
+  margin: 12px 20px 0;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.pdf-status-success {
+  background: rgba(52, 211, 153, 0.14);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #6ee7b7;
+}
+
+.pdf-status-error {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
 .btn-close-drawer {
   background: var(--bg-elevated);
   color: var(--text-primary);
