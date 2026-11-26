@@ -106,7 +106,7 @@ Endpoint forensics traditionally deals with three fundamentally incompatible dat
 | `entity_type` | Enum (`device`, `file`, `process`) | **Yes** | Target classification |
 | `entity` | String | **Yes** | Canonical affected path or hardware identifier |
 | `details` | Object (JSON) | **Yes** | Source-specific metadata, process IDs, and `raw_record_id` |
-| `raw` | Object \| String | **Yes** | Untouched original telemetry record for court-admissible evidence |
+| `raw` | Object \| String | **Yes** | Untouched original telemetry record for forensic investigation and verification |
 
 ### Formatting Constraints Enforced by Pydantic
 * **Timestamps:** Strict ISO 8601 UTC with milliseconds: `YYYY-MM-DDTHH:MM:SS.mmmZ`.
@@ -380,7 +380,7 @@ The Build & Execution Plan specifies a 6-step demo script for our Phase 2 evalua
 
 ### Phase 3 Roadmap & Planned Deliverables
 1. **ReportLab Forensic PDF Generation (`backend/reports.py`):**
-   * One-click generation of court-admissible forensic investigation reports.
+   * One-click generation of forensic investigation reports with raw evidence appendix.
    * Incorporates case metadata, reconstructed activity narratives (Akash), and tabular evidence provenance.
 2. **Dashboard Query API Expansion:**
    * Timeline feeds and filter endpoints for Chetna's React dashboard.
