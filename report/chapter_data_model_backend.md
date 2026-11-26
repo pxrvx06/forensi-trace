@@ -76,7 +76,7 @@ To ensure that all downstream correlation rules, timeline visualizations, and PD
 | `entity_type` | Enum | `device`, `file`, `process` | Target taxonomy classification. |
 | `entity` | String | Canonical path / ID | Affected resource: formatted device name, canonical file path, or process image path. |
 | `details` | Object (JSON) | Structured Dict | Source-specific metadata, process IDs, parent process information, and `raw_record_id`. |
-| `raw` | Object / String | Pristine record | The untouched, original OS log record for court-admissible explainability. |
+| `raw` | Object / String | Pristine record | The untouched, original OS log record for forensic investigation and raw-evidence verification. |
 
 ### 2.2 Allowed Action Matrix
 Actions are strictly constrained by telemetry source to prevent parser ambiguity:
@@ -137,7 +137,7 @@ CREATE TABLE events (
     created_at_utc TEXT NOT NULL
 );
 
--- 2. Activities Table: Reconstructed correlation chains
+-- 2. Activities Table: Reconstructed correlation chains + Hybrid ML fields
 CREATE TABLE activities (
     activity_id TEXT PRIMARY KEY,
     rule_id TEXT NOT NULL,
@@ -146,6 +146,8 @@ CREATE TABLE activities (
     ts_end_utc TEXT NOT NULL,
     confidence REAL NOT NULL DEFAULT 1.0,
     narrative TEXT,
+    ml_anomaly_score REAL,
+    threat_level TEXT DEFAULT 'MEDIUM',
     created_at_utc TEXT NOT NULL
 );
 
@@ -223,6 +225,10 @@ POST      /events                Batched telemetry ingestion & deduplication End
 GET       /events                Filterable chronological event query       Dashboard
 GET       /events/window         Sliding time-window event extraction       Correlation Engine
 GET       /events/{event_id}     Single event inspection with raw payload   Evidence Drawer
+GET       /timeline              Chronological events + activities stream   React Timeline
+GET       /activities            List correlated activities & ML scores     Dashboard
+GET       /activities/{id}       Single activity + evidence provenance      Evidence Drawer
+GET       /report/{activity_id}  Stream 3-page forensic investigation PDF   Export Button
 POST      /reset                 Full database flush for demo test runs     Test Runners
 ```
 
