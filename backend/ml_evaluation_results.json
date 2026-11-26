@@ -1,0 +1,189 @@
+{
+  "evaluated_at_utc": "2026-11-26T18:12:18.357716+00:00",
+  "threshold_tau": 0.2896217405796051,
+  "threshold_selection_method": "99.0th percentile of normal validation loss",
+  "ml_score_boundary": 0.5,
+  "excluded_train_sessions": [
+    "baseline_session_01",
+    "baseline_session_02"
+  ],
+  "excluded_val_sessions": [
+    "baseline_session_03"
+  ],
+  "test_session_count": 6,
+  "comparison_table": {
+    "Rules Alone": {
+      "tp": 4,
+      "fp": 0,
+      "tn": 2,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "fpr": 0.0
+    },
+    "ML Alone": {
+      "tp": 4,
+      "fp": 2,
+      "tn": 0,
+      "fn": 0,
+      "precision": 0.6667,
+      "recall": 1.0,
+      "f1": 0.8,
+      "fpr": 1.0
+    },
+    "Hybrid (Rules + ML)": {
+      "tp": 4,
+      "fp": 2,
+      "tn": 0,
+      "fn": 0,
+      "precision": 0.6667,
+      "recall": 1.0,
+      "f1": 0.8,
+      "fpr": 1.0
+    }
+  },
+  "per_session_breakdown": [
+    {
+      "session_id": "baseline_session_04",
+      "dataset_source": "real_baseline_held_out",
+      "event_count": 4,
+      "ground_truth": "normal",
+      "expected_rules": [],
+      "rules_alone_detected": false,
+      "triggered_rules": [],
+      "ml_alone_detected": true,
+      "max_mse": 0.488362,
+      "max_ml_anomaly_score": 0.8431,
+      "hybrid_detected": true,
+      "hybrid_threat_levels": []
+    },
+    {
+      "session_id": "normal_noise",
+      "dataset_source": "ground_truth_scenario",
+      "event_count": 11,
+      "ground_truth": "normal",
+      "expected_rules": [],
+      "rules_alone_detected": false,
+      "triggered_rules": [],
+      "ml_alone_detected": true,
+      "max_mse": 0.364969,
+      "max_ml_anomaly_score": 0.6301,
+      "hybrid_detected": true,
+      "hybrid_threat_levels": []
+    },
+    {
+      "session_id": "scenario_a",
+      "dataset_source": "ground_truth_scenario",
+      "event_count": 3,
+      "ground_truth": "malicious",
+      "expected_rules": [
+        "R1",
+        "R2",
+        "R7"
+      ],
+      "rules_alone_detected": true,
+      "triggered_rules": [
+        "R1",
+        "R2",
+        "R7"
+      ],
+      "ml_alone_detected": true,
+      "max_mse": 0.577664,
+      "max_ml_anomaly_score": 0.9973,
+      "hybrid_detected": true,
+      "hybrid_threat_levels": [
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL"
+      ]
+    },
+    {
+      "session_id": "scenario_a_prime",
+      "dataset_source": "ground_truth_scenario",
+      "event_count": 3,
+      "ground_truth": "malicious",
+      "expected_rules": [
+        "R2"
+      ],
+      "rules_alone_detected": true,
+      "triggered_rules": [
+        "R2"
+      ],
+      "ml_alone_detected": true,
+      "max_mse": 0.575313,
+      "max_ml_anomaly_score": 0.9932,
+      "hybrid_detected": true,
+      "hybrid_threat_levels": [
+        "CRITICAL"
+      ]
+    },
+    {
+      "session_id": "scenario_b",
+      "dataset_source": "ground_truth_scenario",
+      "event_count": 4,
+      "ground_truth": "malicious",
+      "expected_rules": [
+        "R1",
+        "R2",
+        "R7"
+      ],
+      "rules_alone_detected": true,
+      "triggered_rules": [
+        "R1",
+        "R2",
+        "R7"
+      ],
+      "ml_alone_detected": true,
+      "max_mse": 0.550342,
+      "max_ml_anomaly_score": 0.9501,
+      "hybrid_detected": true,
+      "hybrid_threat_levels": [
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL"
+      ]
+    },
+    {
+      "session_id": "scenario_c",
+      "dataset_source": "ground_truth_scenario",
+      "event_count": 9,
+      "ground_truth": "malicious",
+      "expected_rules": [
+        "R4",
+        "R5",
+        "R6"
+      ],
+      "rules_alone_detected": true,
+      "triggered_rules": [
+        "R1",
+        "R4",
+        "R5",
+        "R6"
+      ],
+      "ml_alone_detected": true,
+      "max_mse": 0.529345,
+      "max_ml_anomaly_score": 0.9139,
+      "hybrid_detected": true,
+      "hybrid_threat_levels": [
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL",
+        "CRITICAL"
+      ]
+    }
+  ]
+}
