@@ -1,0 +1,5 @@
+# ForensiTrace Development & Testing Dependencies
+-r requirements.txt
+pytest>=8.0.0
+httpx>=0.27.0
+starlette>=0.37.0

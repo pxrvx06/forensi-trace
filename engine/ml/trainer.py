@@ -126,11 +126,10 @@ class TrainingPipeline:
         s_ids = sorted(list(session_ids))
         n = len(s_ids)
 
-        if n == 0:
-            return {"train": [], "val": [], "test": []}
-        if n == 1:
-            # 1 session: used for train and val to allow initial baseline modeling
-            return {"train": s_ids, "val": s_ids, "test": []}
+        if n < 2:
+            raise ValueError(
+                f"At least 2 independent normal sessions are required for train/val splitting without leakage (got {n})."
+            )
         if n == 2:
             return {"train": [s_ids[0]], "val": [s_ids[1]], "test": []}
 
@@ -197,8 +196,9 @@ class TrainingPipeline:
         if not train_windows:
             raise ValueError("No feature windows could be generated from training sessions.")
         if not val_windows:
-            # Fallback to train_windows if val set produced no windows
-            val_windows = train_windows
+            raise ValueError(
+                "Validation split produced 0 windows; cannot derive an independent threshold without training data leakage."
+            )
 
         logger.info(
             "[train] Formulated %d train windows, %d validation windows",

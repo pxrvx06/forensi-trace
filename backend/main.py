@@ -116,6 +116,42 @@ def ingest_events(payload: Union[EventBatch, Event, List[Event]]):
     logger.info("[ingest_events] [RECEIVED] Ingest request with %d event(s)", len(events_list))
     inserted, ignored = insert_events_batch(events_list)
 
+    # Live event-to-analysis integration: correlate newly ingested events
+    if inserted > 0 and events_list:
+        try:
+            from datetime import datetime, timedelta, timezone
+            from backend.db import get_events_in_window, insert_activity
+            from engine.correlator import CorrelationEngine, parse_iso_utc
+            from engine.ml.scoring import AnomalyScorer
+
+            timestamps = []
+            for ev in events_list:
+                ts_str = ev.ts_utc if hasattr(ev, "ts_utc") else ev.get("ts_utc")
+                if ts_str:
+                    timestamps.append(parse_iso_utc(ts_str))
+
+            if timestamps:
+                t_min = min(timestamps) - timedelta(minutes=20)
+                t_max = max(timestamps) + timedelta(minutes=1)
+                ts_start = t_min.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+                ts_end = t_max.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+                window_events = get_events_in_window(ts_start, ts_end)
+            else:
+                window_events = events_list
+
+            artifacts_dir = Path(__file__).resolve().parent.parent / "engine" / "ml" / "artifacts"
+            scorer = AnomalyScorer(artifacts_dir=artifacts_dir) if artifacts_dir.is_dir() else None
+            engine = CorrelationEngine(ml_scorer=scorer)
+            correlated = engine.correlate_events(window_events)
+            for item in correlated:
+                insert_activity(item.activity, item.links)
+            logger.info(
+                "[ingest_events] [CORRELATED] Persisted %d activity chain(s) from %d window event(s)",
+                len(correlated), len(window_events),
+            )
+        except Exception as exc:
+            logger.error("[ingest_events] [CORRELATION_ERROR] Live correlation failed: %s", exc)
+
     response = IngestionResponse(
         status="success",
         received=len(events_list),

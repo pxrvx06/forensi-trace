@@ -4,6 +4,7 @@
   "label": "malicious",
   "description": "Bulk exfiltration burst on removable media, followed by Security log clearing and NTFS timestamp manipulation.",
   "expected_rules": [
+    "R1",
     "R4",
     "R5",
     "R6"

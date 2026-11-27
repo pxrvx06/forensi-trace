@@ -1,5 +1,5 @@
 {
-  "evaluated_at_utc": "2026-11-26T18:12:18.357716+00:00",
+  "evaluated_at_utc": "2026-11-27T15:14:37.153725+00:00",
   "threshold_tau": 0.2896217405796051,
   "threshold_selection_method": "99.0th percentile of normal validation loss",
   "ml_score_boundary": 0.5,
@@ -152,6 +152,7 @@
       "event_count": 9,
       "ground_truth": "malicious",
       "expected_rules": [
+        "R1",
         "R4",
         "R5",
         "R6"
