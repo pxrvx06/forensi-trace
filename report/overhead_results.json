@@ -1,0 +1,66 @@
+{
+  "timestamp_utc": "2026-11-27T04:17:53.947560+00:00",
+  "system": {
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.2",
+    "cpu_logical_cores": 20,
+    "total_ram_gb": 15.71
+  },
+  "workload": {
+    "idle_duration_sec": 5.0,
+    "copy_files_count": 50,
+    "file_size_kb": 200,
+    "total_copied_mb": 9.77,
+    "copy_phase_elapsed_sec": 4.37,
+    "events_ingested": 50,
+    "activities_correlated": 0,
+    "ml_correlation_latency_ms": 28.05,
+    "ml_model_loaded": true
+  },
+  "idle": {
+    "agent": {
+      "cpu_avg_pct": 0.31,
+      "cpu_peak_pct": 3.1,
+      "rss_avg_mb": 39.3,
+      "rss_peak_mb": 39.3,
+      "samples": 10
+    },
+    "backend_api": {
+      "cpu_avg_pct": 0.0,
+      "cpu_peak_pct": 0.0,
+      "rss_avg_mb": 57.96,
+      "rss_peak_mb": 57.96,
+      "samples": 10
+    },
+    "ml_scorer_host": {
+      "cpu_avg_pct": 0.0,
+      "cpu_peak_pct": 0.0,
+      "rss_avg_mb": 211.55,
+      "rss_peak_mb": 211.55,
+      "samples": 10
+    }
+  },
+  "active_copy_with_ml": {
+    "agent": {
+      "cpu_avg_pct": 8.05,
+      "cpu_peak_pct": 12.5,
+      "rss_avg_mb": 42.04,
+      "rss_peak_mb": 42.05,
+      "samples": 6
+    },
+    "backend_api": {
+      "cpu_avg_pct": 2.92,
+      "cpu_peak_pct": 5.9,
+      "rss_avg_mb": 58.42,
+      "rss_peak_mb": 58.59,
+      "samples": 6
+    },
+    "ml_scorer_host": {
+      "cpu_avg_pct": 5.08,
+      "cpu_peak_pct": 7.2,
+      "rss_avg_mb": 213.06,
+      "rss_peak_mb": 220.28,
+      "samples": 6
+    }
+  }
+}
