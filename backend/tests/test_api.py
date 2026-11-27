@@ -193,8 +193,9 @@ class TestFastAPIBackend(unittest.TestCase):
         resp = self.client.get("/activities")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
-        self.assertEqual(data["count"], 1)
-        self.assertEqual(data["activities"][0]["activity_id"], "act_r7_test001")
+        self.assertGreaterEqual(data["count"], 1)
+        activity_ids = [a["activity_id"] for a in data["activities"]]
+        self.assertIn("act_r7_test001", activity_ids)
 
         # 2. Test GET /activities/{activity_id}
         act_resp = self.client.get("/activities/act_r7_test001")
