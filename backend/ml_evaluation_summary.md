@@ -1,6 +1,6 @@
 # ForensiTrace Phase 3 — ML & Hybrid Evaluation Results
 
-- **Evaluated At (UTC):** 2026-11-26T18:12:18.357716+00:00
+- **Evaluated At (UTC):** 2026-11-27T15:14:37.153725+00:00
 - **Baseline Threshold (τ):** `0.289622` (99.0th percentile of normal validation loss)
 - **ML Normalized Boundary:** `0.50` (where MSE = τ maps to `0.50`)
 - **Excluded Splits (Leakage Prevention):** Train = `['baseline_session_01', 'baseline_session_02']`, Val = `['baseline_session_03']`

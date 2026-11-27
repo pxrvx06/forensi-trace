@@ -163,13 +163,21 @@ class EventSender:
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
             if exc.code == 422:
-                # Malformed schema validation failure
+                if len(batch) > 1:
+                    logger.warning(
+                        "[EventSender] [TRANSMIT] [SCHEMA_ERROR] Backend rejected batch of %d events (HTTP 422). "
+                        "Isolating and retrying events individually to preserve valid records.",
+                        len(batch),
+                    )
+                    for single_ev in batch:
+                        self._transmit_batch_http([single_ev])
+                    return True
+                # Single malformed event: log and drop to avoid blocking the queue
                 logger.error(
-                    "[EventSender] [TRANSMIT] [SCHEMA_ERROR] Backend rejected batch (HTTP 422): %s. "
-                    "Discarding invalid records to prevent blocking the sender pipeline.",
+                    "[EventSender] [TRANSMIT] [SCHEMA_ERROR] Backend rejected single event (HTTP 422): %s. "
+                    "Discarding invalid record.",
                     body,
                 )
-                # Treat as handled so bad events don't retry forever
                 return True
             else:
                 logger.warning(

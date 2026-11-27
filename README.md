@@ -23,6 +23,38 @@ Strict project structure per team agreement:
 
 ## Shared Technical Contracts & Rules
 All development adheres to [.agent/rules/forensitrace.md](file:///.agent/rules/forensitrace.md):
-- **Tech Stack:** Python 3.x, FastAPI, SQLite, watchdog, pywin32, python-evtx; React (dashboard).
-- **Contracts:** `docs/schema.md` is frozen first. Correlation rules live in `rules.yaml` (no machine learning).
+- **Tech Stack:** Python 3.12+, FastAPI, SQLite, PyTorch (CPU-first LSTM Autoencoder), ReportLab, watchdog; React + Vite (dashboard).
+- **Contracts:** `docs/schema.md` and `docs/ml.md` are frozen contracts. Deterministic correlation rules live in `docs/rules.yaml` (R1–R7) and are paired with the Tier 1 LSTM Autoencoder in `engine/ml/`.
 - **Isolation:** Component boundaries are strictly maintained within their respective folders.
+
+---
+
+## Quick Setup & Verification
+
+### 1. Python Environment
+```bash
+pip install -r requirements-dev.txt
+```
+
+### 2. Run Full Python Test Suite
+```bash
+python -m pytest backend/tests engine/tests agent/tests scenarios/ scripts/test_run_demo.py
+```
+
+### 3. Train ML Model (Optional — pre-trained artifacts are in `engine/ml/artifacts/`)
+```bash
+python -m engine.ml.train --data-dir scenarios/baseline --output-dir engine/ml/artifacts --epochs 30 --lr 0.005
+```
+
+### 4. Run End-to-End Demo (Synthetic Replay)
+```bash
+python scripts/run_demo.py
+```
+
+### 5. Dashboard (Requires Node.js)
+```bash
+cd dashboard
+npm install
+npm test -- --run
+npm run build
+```
